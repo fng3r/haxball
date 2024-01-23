@@ -12,8 +12,12 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
+from distutils import util
+from dotenv import find_dotenv, load_dotenv
+
+load_dotenv(find_dotenv())
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import socket
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -21,10 +25,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'm_5m)8w^h+8avxko^()kmlr6fnp(r+m1^=(m!kldx$*47(-za6'
+SECRET_KEY = os.environ['APP_SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = util.strtobool(os.environ['APP_DEBUG'])
 
 if DEBUG:
     ALLOWED_HOSTS = []
@@ -114,8 +118,8 @@ else:
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': 'hax_db',
-            'USER': 'kikimor24',
-            'PASSWORD': 'gibby4mopolnoye322',
+            'USER': os.environ['DB_USER'],
+            'PASSWORD': os.environ['DB_PASSWORD'],
             'HOST': 'localhost',
             'PORT': '5432',
         }
@@ -160,7 +164,6 @@ USE_I18N = True
 USE_L10N = True
 
 if DEBUG:
-    # EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     # ACCOUNT_EMAIL_REQUIRED = True
     # ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
@@ -190,8 +193,8 @@ else:
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'haxballcis@gmail.com'
-EMAIL_HOST_PASSWORD = 'lecscwvmksyimskp'
+EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
+EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
 
 if DEBUG:
     STATIC_URL = '/static/'
