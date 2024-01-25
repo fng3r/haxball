@@ -29,7 +29,7 @@ DEBUG = False
 if DEBUG:
     ALLOWED_HOSTS = []
 else:
-    ALLOWED_HOSTS = ['185.7.145.200', 'cis-haxball.com', '127.0.0.1']
+    ALLOWED_HOSTS = ['45.135.233.214', 'cis-haxball.com', 'www.cis-haxball.com', '127.0.0.1']
 
 # Application definition
 
@@ -204,7 +204,7 @@ else:
     STATIC_ROOT = os.path.join(BASE_DIR, 'static')
     STATIC_URL = '/static/'
     MEDIA_URL = '/media/'
-    MEDIA_ROOT = '/root/site/media'
+    MEDIA_ROOT = '/home/site/media'
 
 CKEDITOR_UPLOAD_PATH = "uploads/"
 
