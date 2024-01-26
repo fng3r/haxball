@@ -12,10 +12,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
-from distutils import util
-from dotenv import find_dotenv, load_dotenv
-
-load_dotenv(find_dotenv())
+from decouple import config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 
@@ -25,15 +22,15 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['APP_SECRET_KEY']
+SECRET_KEY = config('APP_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = util.strtobool(os.environ['APP_DEBUG'])
+DEBUG = config('APP_DEBUG', cast=bool, default=False)
 
 if DEBUG:
     ALLOWED_HOSTS = []
 else:
-    ALLOWED_HOSTS = ['185.7.145.200', 'cis-haxball.com', '127.0.0.1']
+    ALLOWED_HOSTS = config('APP_ALLOWED_HOSTS', cast=str.split)
 
 # Application definition
 
@@ -117,11 +114,11 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'hax_db',
-            'USER': os.environ['DB_USER'],
-            'PASSWORD': os.environ['DB_PASSWORD'],
-            'HOST': 'localhost',
-            'PORT': '5432',
+            'NAME': config('DB_NAME'),
+            'USER': config('DB_USER'),
+            'PASSWORD': config('DB_PASSWORD'),
+            'HOST': config('DB_HOST'),
+            'PORT': config('DB_PORT'),
         }
     }
 
@@ -173,7 +170,6 @@ else:
     ACCOUNT_EMAIL_REQUIRED = True
     ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
     ACCOUNT_EMAIL_VERIFICATION = True
-    # ACCOUNT_USERNAME_MIN_LENGTH = 1
 
 if DEBUG:
     CACHES = {
@@ -190,24 +186,24 @@ else:
         }
     }
 
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_USE_TLS = True
-EMAIL_PORT = 587
-EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
-EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
+EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_PORT = config('EMAIL_PORT', cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool, default=True)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 if DEBUG:
     STATIC_URL = '/static/'
     STATIC_DIR = os.path.join(BASE_DIR, 'static')
     STATICFILES_DIRS = [STATIC_DIR]
-    # STATIC_ROOT = os.path.join(BASE_DIR, 'static')
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 else:
     STATIC_ROOT = os.path.join(BASE_DIR, 'static')
     STATIC_URL = '/static/'
     MEDIA_URL = '/media/'
-    MEDIA_ROOT = '/root/site/media'
+    MEDIA_ROOT = '/home/site/media'
 
 CKEDITOR_UPLOAD_PATH = "uploads/"
 
