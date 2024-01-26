@@ -193,6 +193,30 @@
                             Лига</a>
                     </div>
 
+                    <a class="dropdown-item submenu" href="#">ЧР #10</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{% url 'tournament:league' 's10-premier-league' %}">Высшая лига</a>
+                        <a class="dropdown-item" href="{% url 'tournament:league' 's10-first_division' %}">Первая лига
+                            </a>
+                        <a class="dropdown-item" href="{% url 'tournament:league' 's10-cup' %}">Кубок России
+                            </a>
+                    </div>
+
+                    <a class="dropdown-item submenu" href="#">ЧР #11</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{% url 'tournament:league' 's11-premier-league' %}">Высшая лига</a>
+                        <a class="dropdown-item" href="{% url 'tournament:league' 's11-first-Nadezhda' %}">Первая лига - дивизион Надежды
+                        </a>
+                        <a class="dropdown-item" href="{% url 'tournament:league' 's11-first-Vera' %}">Первая лига - дивизион Веры
+                        </a>
+                        <a class="dropdown-item" href="{% url 'tournament:league' 'play-offpl' %}">Первая лига - плей-офф
+                        </a>
+                        <a class="dropdown-item" href="{% url 'tournament:league' 'superfinalpl' %}">Первая лига - суперфинал
+                        </a>
+                        <a class="dropdown-item" href="{% url 'tournament:league' 'kubokchr11' %}">Кубок России
+                        </a>
+
+                    </div>
                 </div>
             </li>
 
