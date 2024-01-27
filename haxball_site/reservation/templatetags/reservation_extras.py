@@ -55,7 +55,7 @@ def reservation_form(user):
         matches_unplayed = \
             (Match.objects
                 .filter((Q(team_home__in=t) | Q(team_guest__in=t)), is_played=False,
-                        numb_tour__number__lte=tour.number, league=tour.league,
+                        numb_tour__number=tour.number, league=tour.league,
                         match_reservation=None)
                 .distinct()
                 .order_by('-numb_tour__number'))
