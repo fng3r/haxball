@@ -15,7 +15,7 @@ Blog-site with social component and tables for creating haxball championships
 - Настраиваем интерпретатор для проекта и создаем [venv](https://www.jetbrains.com/help/pycharm/creating-virtual-environment.html) 
   (в результате должна появиться директория .venv в корне)
 - Устанавливаем зависимости
-`pip install -r requirements.txt'`
+`pip install -r requirements/dev.txt'`
 - `cd haxball_site`
 - Заполняем настройками файл с конфигурацией - .env (шаблон можно взять из .env.example)
 - Подготавливаем БД
