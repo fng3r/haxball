@@ -109,7 +109,11 @@ media/
 *.pyc
 *.db
 *.pid
+
 # django migrations
 **/migrations/**
 !**/migrations
 !**/migrations/__init__.py
+
+# site_cache
+/haxball_site/mycache/

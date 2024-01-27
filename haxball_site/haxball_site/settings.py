@@ -12,8 +12,9 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
+from decouple import config
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import socket
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -21,15 +22,15 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'm_5m)8w^h+8avxko^()kmlr6fnp(r+m1^=(m!kldx$*47(-za6'
+SECRET_KEY = config('APP_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = config('APP_DEBUG', cast=bool, default=False)
 
 if DEBUG:
     ALLOWED_HOSTS = []
 else:
-    ALLOWED_HOSTS = ['45.135.233.214', 'cis-haxball.com', 'www.cis-haxball.com', '127.0.0.1']
+    ALLOWED_HOSTS = config('APP_ALLOWED_HOSTS', cast=str.split)
 
 # Application definition
 
@@ -113,11 +114,11 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'hax_db',
-            'USER': 'kikimor24',
-            'PASSWORD': 'gibby4mopolnoye322',
-            'HOST': 'localhost',
-            'PORT': '5432',
+            'NAME': config('DB_NAME'),
+            'USER': config('DB_USER'),
+            'PASSWORD': config('DB_PASSWORD'),
+            'HOST': config('DB_HOST'),
+            'PORT': config('DB_PORT'),
         }
     }
 
@@ -160,7 +161,6 @@ USE_I18N = True
 USE_L10N = True
 
 if DEBUG:
-    # EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     # ACCOUNT_EMAIL_REQUIRED = True
     # ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
@@ -170,7 +170,6 @@ else:
     ACCOUNT_EMAIL_REQUIRED = True
     ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
     ACCOUNT_EMAIL_VERIFICATION = True
-    # ACCOUNT_USERNAME_MIN_LENGTH = 1
 
 if DEBUG:
     CACHES = {
@@ -187,17 +186,17 @@ else:
         }
     }
 
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_USE_TLS = True
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'haxballcis@gmail.com'
-EMAIL_HOST_PASSWORD = 'lecscwvmksyimskp'
+EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_PORT = config('EMAIL_PORT', cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool, default=True)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 if DEBUG:
     STATIC_URL = '/static/'
     STATIC_DIR = os.path.join(BASE_DIR, 'static')
     STATICFILES_DIRS = [STATIC_DIR]
-    # STATIC_ROOT = os.path.join(BASE_DIR, 'static')
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 else:
@@ -212,6 +211,8 @@ LOGIN_REDIRECT_URL = '/'
 ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 
 SITE_ID = 1
+
+URL_PREFIX = config('APP_URL_PREFIX', default='')
 
 # Grapelli config
 GRAPPELLI_ADMIN_TITLE = 'Место уважаемых администраторов'
