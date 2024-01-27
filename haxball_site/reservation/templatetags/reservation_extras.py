@@ -1,13 +1,11 @@
 from datetime import timedelta
-from datetime import time
 
 from django import template
-from django.contrib.auth.models import AnonymousUser
 from django.db.models import Q
 from django.db.models.functions import datetime
 from django.utils import timezone
 from tournament.models import Player, Team, League, TourNumber, Match
-from ..models import ReservationEntry
+from reservation.models import ReservationHost
 
 register = template.Library()
 
@@ -43,7 +41,7 @@ def reservation_form(user):
     t = teams_can_reserv(user)
     actual_tour = TourNumber.objects.filter(league__championship__is_active=True, is_actual=True,
                                             league__teams__in=t).distinct()
-    print(actual_tour)
+
     if actual_tour is None:
         return {
             'matches': []
@@ -54,27 +52,28 @@ def reservation_form(user):
 
     # Просматриваем все активные туры и смотрим матчи, которые не сыграны и на которых нету брони
     for tour in actual_tour:
-        matches_unplayed = Match.objects.filter((Q(team_home__in=t) | Q(team_guest__in=t)), is_played=False,
-                                                numb_tour__number__lte=tour.number, league=tour.league,
-                                                match_reservation=None
-                                                ).order_by('-numb_tour__number').distinct()
+        matches_unplayed = \
+            (Match.objects
+                .filter((Q(team_home__in=t) | Q(team_guest__in=t)), is_played=False,
+                        numb_tour__number__lte=tour.number, league=tour.league,
+                        match_reservation=None)
+                .distinct()
+                .order_by('-numb_tour__number'))
         matches_to_choose.extend(matches_unplayed)
 
-    date_today = datetime.datetime.today()
-    """
-    Было нужно, когда можно было бронить матчи до какого-то времени.
-    time_end = datetime.datetime(year=actual_tour.date_to.year, month=actual_tour.date_to.month,
-                                 day=actual_tour.date_to.day, hour=23, minute=30, second=0)
-    """
+    hosts = ReservationHost.objects.filter(is_active=True)
+    today = datetime.datetime.today().date()
+    tomorrow = today + timedelta(days=1)
     hours_list = list(range(18, 24))
     minutes_list = [0, 15, 30, 45]
     return {
         'matches': matches_to_choose,
         'user': user,
-        "date_today": date_today.date(),
-        "date_tomorrow": date_today.date() + timedelta(days=1),
-        "hours_list": hours_list,
-        "minutes_list": minutes_list
+        'date_today': today,
+        'date_tomorrow': tomorrow,
+        'hours_list': hours_list,
+        'minutes_list': minutes_list,
+        'hosts': hosts
     }
 
 

@@ -23,20 +23,17 @@ class ReservationList(ListView):
     def post(self, request):
         data = request.POST
 
-        # date_time_obj = datetime.strptime(data['time_date'], '%Y-%m-%dT%H:%M')
-        date_time_obj = datetime.combine(datetime.strptime(data["match_date"], '%Y-%m-%d').date(),
-                                         time(hour=int(data["match_hour"]), minute=int(data["match_minute"])))
-        d1 = date_time_obj - timedelta(minutes=29)
-        d2 = date_time_obj + timedelta(minutes=29)
-        reserved = ReservationEntry.objects.filter(time_date__range=[d1, d2])
-        active_hosts = ReservationHost.objects.filter(is_active=True)
-        if reserved.count() < active_hosts.count():
-            hosts = set(active_hosts)
-            for i in reserved:
-                hosts.remove(i.host)
-            h = hosts.pop()
-            ReservationEntry.objects.create(author=request.user, time_date=date_time_obj,
-                                            match_id=int(data['match']), host=h)
+        match_id = int(data['match'])
+        host_id = int(data['match_host'])
+        match_date = datetime.combine(datetime.strptime(data['match_date'], '%Y-%m-%d').date(),
+                                      time(hour=int(data['match_hour']), minute=int(data['match_minute'])))
+        prev_match_date = match_date - timedelta(minutes=29)
+        next_match_date = match_date + timedelta(minutes=29)
+
+        reserved = ReservationEntry.objects.filter(time_date__range=[prev_match_date, next_match_date], host_id=host_id)
+        if reserved.count() == 0:
+            ReservationEntry.objects.create(author=request.user, time_date=match_date,
+                                            match_id=match_id, host_id=host_id)
             return redirect('reservation:host_reservation')
         else:
             return render(request, 'reservation/reservation_list.html', {
