@@ -123,6 +123,7 @@ class League(models.Model):
         return reverse('tournament:league', args=[self.slug])
 
     class Meta:
+        ordering = ['-created']
         verbose_name = 'Турнир'
         verbose_name_plural = 'Турнир'
 
