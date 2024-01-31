@@ -14,7 +14,7 @@ class FreeAgentAdmin(admin.ModelAdmin):
 
 @admin.register(AchievementCategory)
 class AchievmentCategoryAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'description', 'image', 'order')
+    list_display = ('id', 'title', 'description', 'order')
 
 
 @admin.register(Achievements)
