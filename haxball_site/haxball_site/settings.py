@@ -212,6 +212,8 @@ ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 
 SITE_ID = 1
 
+URL_PREFIX = config('APP_URL_PREFIX', default='')
+
 # Grapelli config
 GRAPPELLI_ADMIN_TITLE = 'Место уважаемых администраторов'
 
