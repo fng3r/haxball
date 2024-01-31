@@ -401,13 +401,32 @@ class PlayerTransfer(models.Model):
         verbose_name_plural = 'Трансферы'
 
 
+class AchievementCategory(models.Model):
+    title = models.CharField('Название категории', max_length=50)
+    description = models.CharField('Описание категории', max_length=150)
+    image = models.ImageField('Изображение категории медалек в профиле', upload_to='medal_categories/', null=True)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        ordering = ['id']
+        verbose_name = 'Категория медалек'
+        verbose_name_plural = 'Категории медалек'
+
+
 class Achievements(models.Model):
     title = models.CharField('Название', max_length=200)
     description = models.CharField('Описание', max_length=400)
     image = models.ImageField('Изображение медальки в профиле', upload_to='medals/', blank=True, null=True)
     mini_image = models.ImageField('Изображение медальки в комменты', upload_to='medals/', blank=True, null=True)
-    player = models.ManyToManyField(Player, related_name='player_medals', blank=True, null=True)
+    player = models.ManyToManyField(Player, verbose_name='Игрок', related_name='player_medals', blank=True, null=True)
     position_number = models.SmallIntegerField('Позиция', default=0)
+    category = models.ForeignKey(AchievementCategory, verbose_name='Категория', related_name='achievements',
+                                 on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return self.title
 
     class Meta:
         ordering = ['position_number']
