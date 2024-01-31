@@ -58,12 +58,6 @@
                                     <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab"
                                        aria-controls="home" aria-selected="true">Состав</a>
                                 </li>
-                                <!--
-                                <li class="nav-item">
-                                    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab"
-                                       aria-controls="profile" aria-selected="false">Статистика</a>
-                                </li>
-                                 -->
                                 <li class="nav-item">
                                     <a class="nav-link" id="match-tab" data-toggle="tab" href="#calendar" role="tab"
                                        aria-controls="calendar-tab" aria-selected="false">Матчи</a>
@@ -72,6 +66,11 @@
                                 <li class="nav-item">
                                     <a class="nav-link" id="other-tab" data-toggle="tab" href="#other" role="tab"
                                        aria-controls="profile" aria-selected="false">Контакты</a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link" id="achievements-tab" data-toggle="tab" href="#achievements" role="tab"
+                                       aria-controls="achievements" aria-selected="false">Достижения</a>
                                 </li>
                             </ul>
                         </div>
@@ -298,16 +297,6 @@
 
                         </div>
 
-                        <!--
-                    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                        <div class="row">
-                            <div class="col-12">
-                                <img src="{% static "img/backgrounds/coming-soon.jpg" %}" height="80%" width="100%"
-                                     style="border-radius: 25px">
-                            </div>
-                        </div>
-                    </div>
-                -->
                         <div class="tab-pane fade" id="calendar" role="tabpanel" aria-labelledby="calendar-tab">
                             <div class="row">
                                 <div class="col-12">
@@ -400,9 +389,21 @@
                                 {% endfor %}
                             </div>
 
-
                         </div>
 
+                        <div class="tab-pane fade" id="achievements" role="tabpanel" aria-labelledby="achievements">
+                            {% if team.achievements.all %}
+                            <div class="row">
+                                {% for achievement in team.achievements.all %}
+                                    <div class="col-sm-2 px-0 text-center"><img src="{{ achievement.image.url }}" title="{{ achievement.description }}"
+                                                                                width="65px" height="65px" alt="{{ achievement.title }}"></div>
+                                {% endfor %}
+
+                            </div>
+                            {% else %}
+                                <span class="text-secondary h5">Здесь пока пусто...</span>
+                            {% endif %}
+                        </div>
 
                         <div class="tab-pane fade" id="other" role="tabpanel" aria-labelledby="other-tab">
                             <div class="row">

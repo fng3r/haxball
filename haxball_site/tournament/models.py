@@ -420,9 +420,9 @@ class Achievements(models.Model):
     description = models.CharField('Описание', max_length=400)
     image = models.ImageField('Изображение медальки в профиле', upload_to='medals/', blank=True, null=True)
     mini_image = models.ImageField('Изображение медальки в комменты', upload_to='medals/', blank=True, null=True)
-    player = models.ManyToManyField(Player, verbose_name='Игрок', related_name='player_medals', blank=True, null=True)
+    player = models.ManyToManyField(Player, verbose_name='Игрок', related_name='achievements', blank=True, null=True)
     position_number = models.SmallIntegerField('Позиция', default=0)
-    category = models.ForeignKey(AchievementCategory, verbose_name='Категория', related_name='achievements',
+    category = models.ForeignKey(AchievementCategory, verbose_name='Категория', related_name='player_achievements',
                                  on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
@@ -432,3 +432,21 @@ class Achievements(models.Model):
         ordering = ['position_number']
         verbose_name = 'Медалька'
         verbose_name_plural = 'Медальки'
+
+
+class TeamAchievement(models.Model):
+    title = models.CharField('Название', max_length=200)
+    description = models.CharField('Описание', max_length=400)
+    image = models.ImageField('Изображение медальки в профиле команды', upload_to='medals/', blank=True, null=True)
+    team = models.ManyToManyField(Team, verbose_name='Команда', related_name='achievements', blank=True, null=True)
+    position_number = models.SmallIntegerField('Позиция', default=0)
+    category = models.ForeignKey(AchievementCategory, verbose_name='Категория', related_name='team_achievements',
+                                 on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        ordering = ['position_number']
+        verbose_name = 'Медалька (командная)'
+        verbose_name_plural = 'Медальки (командные)'

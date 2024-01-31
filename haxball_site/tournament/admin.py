@@ -4,7 +4,7 @@ from django.db.models import Q
 from django.urls import resolve
 
 from .models import FreeAgent, Player, League, Team, Match, Goal, OtherEvents, Substitution, Season, PlayerTransfer, \
-    TourNumber, Nation, Achievements, AchievementCategory
+    TourNumber, Nation, Achievements, TeamAchievement, AchievementCategory
 
 
 @admin.register(FreeAgent)
@@ -21,6 +21,12 @@ class AchievmentCategoryAdmin(admin.ModelAdmin):
 class AchievmentsAdmin(admin.ModelAdmin):
     list_display = ('id', 'position_number', 'title', 'description', 'category', 'image', 'mini_image')
     filter_horizontal = ('player',)
+
+
+@admin.register(TeamAchievement)
+class TeamAchievmentAdmin(admin.ModelAdmin):
+    list_display = ('id', 'position_number', 'title', 'description', 'category', 'image')
+    filter_horizontal = ('team',)
 
 
 @admin.register(Player)
