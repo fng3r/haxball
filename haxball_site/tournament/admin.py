@@ -14,17 +14,17 @@ class FreeAgentAdmin(admin.ModelAdmin):
 
 @admin.register(AchievementCategory)
 class AchievmentCategoryAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'description', 'image')
+    list_display = ('id', 'title', 'description', 'image', 'order')
 
 
 @admin.register(Achievements)
-class AchievmentsAdmin(admin.ModelAdmin):
+class AchievementsAdmin(admin.ModelAdmin):
     list_display = ('id', 'position_number', 'title', 'description', 'category', 'image', 'mini_image')
     filter_horizontal = ('player',)
 
 
 @admin.register(TeamAchievement)
-class TeamAchievmentAdmin(admin.ModelAdmin):
+class TeamAchievementAdmin(admin.ModelAdmin):
     list_display = ('id', 'position_number', 'title', 'description', 'category', 'image')
     filter_horizontal = ('team',)
 
