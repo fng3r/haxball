@@ -30,6 +30,7 @@ class PlayerAdmin(admin.ModelAdmin):
 class PlayerTransferAdmin(admin.ModelAdmin):
     list_display = ('trans_player', 'to_team', 'date_join', 'season_join')
     list_filter = ('trans_player', 'to_team',)
+    autocomplete_fields = ('trans_player',)
 
 
 @admin.register(Team)
