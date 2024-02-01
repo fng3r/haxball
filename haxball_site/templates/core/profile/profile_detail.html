@@ -162,10 +162,10 @@
                             {% if achievements_by_category %}
                                 <h5 class="mb-1 m-t-40 p-b-5 b-b-default f-w-600">Достижения</h5>
                                 {% for category, achievements in achievements_by_category %}
-                                    <h5 class="text-secondary ml-1">{{ category }}</h5>
-                                    <div class="row">
+                                    <p class="profile_achievements-text">{{ category }}</p>
+                                    <div class="profile_achievemnts-medals">
                                         {% for achievement in achievements %}
-                                            <div class="col-sm-2 px-0 text-center"><img src="{{ achievement.image.url }}" title="{{ achievement.description }}" width="65px" height="65px" alt="{{ achievement.title }}"></div>
+                                            <div class="profile-achievements-item"><img class="profile-achievements-image" src="{{ achievement.image.url }}" title="{{ achievement.description }}" width="65px" height="65px" alt="{{ achievement.title }}"></div>
                                         {% endfor %}
                                     </div>
                                 {% endfor %}

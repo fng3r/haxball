@@ -429,7 +429,7 @@ class Achievements(models.Model):
         return self.title
 
     class Meta:
-        ordering = ['position_number']
+        ordering = ['category__order','position_number']
         verbose_name = 'Медалька'
         verbose_name_plural = 'Медальки'
 
