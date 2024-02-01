@@ -32,9 +32,14 @@ class PlayerTransferAdmin(admin.ModelAdmin):
     list_filter = ('trans_player', 'to_team',)
 
 
+class PlayerInline(admin.StackedInline):
+    model = Player
+
+
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
     list_display = ('title', 'short_title', 'owner',)
+    inlines = [PlayerInline]
 
 
 @admin.register(Season)
