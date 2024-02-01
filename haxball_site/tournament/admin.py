@@ -25,7 +25,7 @@ class AchievementsAdmin(admin.ModelAdmin):
 
 @admin.register(TeamAchievement)
 class TeamAchievementAdmin(admin.ModelAdmin):
-    list_display = ('id', 'position_number', 'title', 'description', 'category', 'image')
+    list_display = ('id', 'season', 'title', 'description', 'players_raw_list', 'position_number', 'image')
     filter_horizontal = ('team',)
 
 
