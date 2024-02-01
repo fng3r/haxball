@@ -36,6 +36,12 @@ class PlayerTransferAdmin(admin.ModelAdmin):
 class PlayerInline(admin.StackedInline):
     model = Player
 
+    def has_add_permission(self, request, obj):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
