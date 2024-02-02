@@ -123,6 +123,7 @@ class League(models.Model):
         return reverse('tournament:league', args=[self.slug])
 
     class Meta:
+        ordering = ['-created']
         verbose_name = 'Турнир'
         verbose_name_plural = 'Турнир'
 
@@ -267,12 +268,13 @@ class Goal(models.Model):
     time_sec = models.SmallIntegerField('Секунда')
 
     def save(self, *args, **kwargs):
-        if self.match.team_home == self.team:
-            self.match.score_home += 1
-            self.match.save(update_fields=['score_home'])
-        elif self.team == self.match.team_guest:
-            self.match.score_guest += 1
-            self.match.save(update_fields=['score_guest'])
+        if self.pk is None:  # update score only when goal is created
+            if self.match.team_home == self.team:
+                self.match.score_home += 1
+                self.match.save(update_fields=['score_home'])
+            elif self.team == self.match.team_guest:
+                self.match.score_guest += 1
+                self.match.save(update_fields=['score_guest'])
         super(Goal, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
