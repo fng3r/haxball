@@ -3,7 +3,7 @@
 {% load cache %}
 {% load tournament_extras %}
 {% block styles %}
-    <link rel="stylesheet" type="text/css" href="{% static "tournament/teams/team_page.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'tournament/teams/team_page.css' %}">
 
 {% endblock %}
 {% block scripts %}
@@ -17,7 +17,6 @@
 {% block title %}Чемпионат | Команда {{ team.title }}         cis-haxball.com {% endblock %}
 
 {% block profile_of_user %}
-    {% cache 6000 team_detail team %}
 
         <div class="container-fluid emp-profile"
              style="background:linear-gradient(to right, {{ team.color_1 }}, {{ team.color_2 }})">
@@ -394,19 +393,36 @@
                         <div class="tab-pane fade" id="achievements" role="tabpanel" aria-labelledby="achievements">
                             {% if team.achievements.all %}
 
+
                                 {% for season, achievements in team|team_achievements_by_season %}
-                                    <div class="row">
-                                        <div class="col-sm-2 px-0 text-center">
-                                            {{season.title}}
+                            <div class="team_achievements">
+                                <div class="team_achievements-season">{{season.title}}</div>
+                                <div class="team_achievements-medals">
+                                    {% for achievement in achievements %}
+                                        <div class="team_achievements-medal" ><img src="{{ achievement.image.url }}" title="{{ achievement.description }}"
+                                                                                width="80px" height="80px" alt="{{ achievement.title }}">
                                         </div>
-                                        {% for achievement in achievements %}
-                                        <div class="col-sm-2 px-0 text-center"><img src="{{ achievement.image.url }}" title="{{ achievement.description }}"
-                                                                                    width="65px" height="65px" alt="{{ achievement.title }}"></div>
-                                        {% endfor %}
-                                        <div class="col-sm-2 px-0 text-center">{{achievements|team_squad_in_season}}</div>
-                                    </div>
-                                {% endfor %}
+                                    {% endfor %}
+                                </div>
+                                <div class="team_achievements-squad">{{achievements|team_squad_in_season}}</div>
                             </div>
+
+
+
+
+                            {% endfor %}
+                            <!--{% for season, achievements in team|team_achievements_by_season %}
+                            <div class="row">
+                                <div class="col-sm-2 px-0 text-center">
+                                    {{season.title}}
+                                </div>
+                                {% for achievement in achievements %}
+                                <div class="col-sm-2 px-0 text-center"><img src="{{ achievement.image.url }}" title="{{ achievement.description }}"
+                                                                            width="65px" height="65px" alt="{{ achievement.title }}"></div>
+                                {% endfor %}
+                                <div class="col-sm-2 px-0 text-center">{{achievements|team_squad_in_season}}</div>
+                            </div>
+                            {% endfor %}-->
                             {% else %}
                                 <span class="text-secondary h5">Здесь пока пусто...</span>
                             {% endif %}
@@ -559,5 +575,5 @@
             </div>
         </div>
 
-    {% endcache %}
+
 {% endblock %}
