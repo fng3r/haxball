@@ -96,3 +96,44 @@
     font-weight: 600;
     color: #0062cc;
 }
+
+.team_achievements{
+    width: 90%;
+    border: none;
+    border-top: 1px solid #dee2e6;
+    margin: 0 auto;
+    display: flex;
+}
+
+
+.team_achievements-medals{
+    text-align: left;
+    min-width: 250px;
+    display: flex;
+}
+
+.team_achievements-season{
+    min-width: 250px;
+    font-family: sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+    margin: auto 0;
+    line-height: 1.2;
+    letter-spacing: 1.5px;
+    font-size: 30px;
+    font-weight: 500;
+    text-shadow: 0.5px 1px 2px #000000;
+    color: #6c757d!important;
+}
+
+.team_achievements-squad{
+    font-family: sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+        margin: auto 0;
+        line-height: 1.5;
+        letter-spacing: 1.5px;
+        font-size: 15px;
+        font-weight: 500;
+        text-shadow: 0.5px 1px 2px #000000;
+        color: #6c757d!important;
+        text-align: center;
+        width: 100%;
+
+}

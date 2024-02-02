@@ -10,7 +10,6 @@ from .forms import FreeAgentForm, EditTeamProfileForm
 from .models import FreeAgent, Team, Match, League, Player, Substitution, Season
 from core.forms import NewCommentForm
 from core.models import NewComment, Profile
-from django.views.decorators.cache import cache_page
 
 
 class FreeAgentList(ListView):
