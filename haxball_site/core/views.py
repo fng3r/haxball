@@ -13,7 +13,7 @@ from django.views.generic import ListView, DetailView
 from django.views.generic.base import View
 from pytils.translit import slugify
 
-from .forms import CommentForm, EditProfileForm, PostForm, NewCommentForm
+from .forms import EditProfileForm, PostForm, NewCommentForm
 from .models import Post, Profile, LikeDislike, Category, Themes, Comment, NewComment, IPAdress
 from haxball_site import settings
 from tournament.models import Team, Achievements

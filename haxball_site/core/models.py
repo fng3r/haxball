@@ -122,24 +122,23 @@ class NewComment(models.Model):
     content_object = GenericForeignKey()
     author = models.ForeignKey(User, verbose_name='Автор', related_name='n_comments_by_user', on_delete=models.CASCADE)
     body = models.TextField()
-    # auto_now_add=True
     created = models.DateTimeField(default=timezone.now)
     parent = models.ForeignKey('self', verbose_name='Родитель', on_delete=models.SET_NULL, blank=True, null=True,
                                related_name="childs")
     votes = GenericRelation(LikeDislike, related_query_name='n_comments')
 
     class Meta:
-        verbose_name = 'Комментарий 2'
-        verbose_name_plural = 'Комментарии 2'
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
         ordering = ('-created',)
 
     def __str__(self):
-        return 'Комментарий от {} к {}'.format(self.author, self.content_type)
+        return 'Комментарий от {} к {}'.format(self.author, self.content_object)
 
     def get_absolute_url(self):
         obj = self.content_object
-        a = list(self.content_object.comments.filter(parent = None))
-        b = list(self.content_object.comments.filter(~Q(parent = None)))
+        a = list(self.content_object.comments.filter(parent=None))
+        b = list(self.content_object.comments.filter(~Q(parent=None)))
         if self in b:
             return self.get_parent().get_absolute_url()
         ind = a.index(self)
@@ -148,7 +147,7 @@ class NewComment(models.Model):
 
     def get_parent(self):
         obj = self
-        while obj.parent != None:
+        while obj.parent is not None:
             obj = obj.parent
         return obj
 

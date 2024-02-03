@@ -15,16 +15,6 @@ class NewCommentForm(forms.ModelForm):
         fields = ('body',)
 
 
-class CommentForm(forms.ModelForm):
-    body = SummernoteTextFormField()
-
-    # body = forms.CharField(widget=FroalaEditor(theme='dark'))
-
-    class Meta:
-        model = Comment
-        fields = ('body',)
-
-
 class EditProfileForm(forms.ModelForm):
     class Meta:
         model = Profile

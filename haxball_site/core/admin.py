@@ -18,27 +18,12 @@ class PostAdminForm(forms.ModelForm):
         fields = '__all__'
 
 
-class CommentAdminForm(forms.ModelForm):
+class NewCommentAdminForm(forms.ModelForm):
     body = SummernoteTextFormField(label='Комментарий')
 
     class Meta:
-        model = Comment
+        model = NewComment
         fields = '__all__'
-
-
-
-
-"""
-def delete_selected(modeladmin, request, queryset):
-    if not modeladmin.has_delete_permission(request):
-        raise PermissionDenied
-    if request.POST.get('post'):
-        for obj in queryset:
-            obj.delete()
-    else:
-        return delete_selected(modeladmin, request, queryset)
-delete_selected.short_description = "Delete selected objects"
-"""
 
 
 @admin.register(LikeDislike)
@@ -47,10 +32,6 @@ class LikeDisLikeAdmin(admin.ModelAdmin):
     list_filter = ('user',)
     list_display_links = ('id',)
     list_editable = ('vote',)
-
-
-class CommentInline(admin.StackedInline):
-    model = Comment
 
 
 @admin.register(Post)
@@ -91,22 +72,13 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = ('title', 'slug', 'description', 'is_official', 'theme')
     prepopulated_fields = {'slug': ('title',)}
 
-"""
-# Старые комменты
-@admin.register(Comment)
-class CommentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'author', 'created', 'body',)
-    list_filter = ('created', 'author')
-    search_fields = ('body',)
-    form = CommentAdminForm
-"""
 
 @admin.register(NewComment)
 class NewCommentAdmin(admin.ModelAdmin):
     list_display = ('id', 'author', 'parent', 'created', 'body', 'content_type', 'object_id', 'content_object')
     list_filter = ('created', 'author')
     search_fields = ('body',)
-    form = CommentAdminForm
+    form = NewCommentAdminForm
 
 
 @admin.register(IPAdress)
