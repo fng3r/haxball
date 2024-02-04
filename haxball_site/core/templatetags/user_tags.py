@@ -58,13 +58,9 @@ def age(born_date):
         return date.today().year - born_date.year - 1
 
 
-# @register.inclusion_tag('core/include/comment/can_edit.html')
 @register.filter
 def can_edit(comment):
-    if timezone.now() - comment.created < timezone.timedelta(minutes=10):
-        return True
-    else:
-        return False
+    return timezone.now() - comment.created < timezone.timedelta(minutes=180)
 
 
 @register.inclusion_tag('core/include/profile/last_actuvity.html')

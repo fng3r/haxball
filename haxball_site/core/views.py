@@ -15,6 +15,7 @@ from pytils.translit import slugify
 
 from .forms import EditProfileForm, PostForm, NewCommentForm
 from .models import Post, Profile, LikeDislike, Category, Themes, Comment, NewComment, IPAdress
+from .templatetags.user_tags import can_edit
 from haxball_site import settings
 from tournament.models import Team, Achievements
 
@@ -155,13 +156,18 @@ def post_edit(request, slug, pk):
 def comment_edit(request, pk):
     comment = get_object_or_404(NewComment, pk=pk)
     obj = comment.content_type.get_object_for_this_type(pk=comment.object_id)
-    if request.method == 'POST':
-        if request.user == comment.author and (
-                timezone.now() - comment.created < timezone.timedelta(minutes=10)) or request.user.is_superuser:
-            form = NewCommentForm(request.POST, instance=comment)
-        else:
-            return HttpResponse('Ошибка доступа или время истекло')
+    if not request.user.is_superuser:
+        if request.user != comment.author:
+            return HttpResponse('Ошибка доступа')
 
+        if not can_edit(comment):
+            return HttpResponse('Время на редактирование комментария истекло')
+
+        if comment.version > 10:
+            return HttpResponse('Достигнут лимит на количество изменений комментария')
+
+    if request.method == 'POST':
+        form = NewCommentForm(request.POST, instance=comment)
         if form.is_valid():
             comment = form.save(commit=False)
             comment.save()
@@ -170,11 +176,8 @@ def comment_edit(request, pk):
             comment.delete()
             return redirect(obj.get_absolute_url())
     else:
-        if request.user == comment.author and (
-                timezone.now() - comment.created < timezone.timedelta(minutes=15)) or request.user.is_superuser:
-            form = NewCommentForm(instance=comment)
-        else:
-            return HttpResponse('Ошибка доступа или время истекло')
+        form = NewCommentForm(instance=comment)
+
     return render(request, 'core/post/edit_comment.html', {'comment_form': form})
 
 
