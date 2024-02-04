@@ -64,6 +64,11 @@ def can_edit(comment):
     return timezone.now() - comment.created < timezone.timedelta(minutes=settings.EDIT_COMMENT_TIME_LIMIT)
 
 
+@register.filter
+def exceeds_edit_limit(comment):
+    return comment.version > settings.EDIT_COMMENT_LIMIT
+
+
 @register.inclusion_tag('core/include/profile/last_actuvity.html')
 def user_last_activity(user):
     try:

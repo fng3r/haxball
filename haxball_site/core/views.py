@@ -15,7 +15,7 @@ from pytils.translit import slugify
 
 from .forms import EditProfileForm, PostForm, NewCommentForm
 from .models import Post, Profile, LikeDislike, Category, Themes, Comment, NewComment, IPAdress
-from .templatetags.user_tags import can_edit
+from .templatetags.user_tags import can_edit, exceeds_edit_limit
 from haxball_site import settings
 from tournament.models import Team, Achievements
 
@@ -163,7 +163,7 @@ def comment_edit(request, pk):
         if not can_edit(comment):
             return HttpResponse('Время на редактирование комментария истекло')
 
-        if comment.version > settings.EDIT_COMMENT_LIMIT:
+        if exceeds_edit_limit(comment):
             return HttpResponse('Достигнут лимит на количество изменений комментария')
 
     if request.method == 'POST':
