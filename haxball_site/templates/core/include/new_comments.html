@@ -176,10 +176,13 @@
 
                                 <div class="comment-footer">
                                 <span class="date text-muted small">
-                                    <i class="fa fa-calendar text-primary"
-                                       aria-hidden="true"></i>  {{ comment.created|date:"SHORT_DATE_FORMAT" }}
-                                    <i class="fa fa-clock-o text-primary"
-                                       aria-hidden="true"></i>{{ comment.created|time:"H:i" }}
+                                    <i class="fa fa-calendar text-primary" aria-hidden="true"></i>
+                                    {{ comment.created|date:"SHORT_DATE_FORMAT" }}
+                                    <i class="fa fa-clock-o text-primary" aria-hidden="true"></i>
+                                    {{ comment.created|time:"H:i" }}
+                                    {% if comment.edited %}
+                                        (изм. {{comment.edited|time:"H:i"}})
+                                    {% endif %}
                                 </span>
 
                                     {% include 'core/include/like_dislike_comment.html' %}
