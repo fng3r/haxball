@@ -177,12 +177,17 @@
                                 <div class="comment-footer">
                                 <span class="date text-muted small">
                                     <i class="fa fa-calendar text-primary" aria-hidden="true"></i>
-                                    {{ comment.created|date:"SHORT_DATE_FORMAT" }}
+                                    {{ comment.created|date:"d.m.y" }}
                                     <i class="fa fa-clock-o text-primary" aria-hidden="true"></i>
                                     {{ comment.created|time:"H:i" }}
                                     {% if comment.edited %}
-                                        <i class="fa fa-pencil comment-edit" aria-hidden="true"
-                                           commentEditTitle='отред. {{comment.edited|date:"SHORT_DATE_FORMAT"}} {{comment.edited|time:"H:i"}}'></i>
+                                        {% if comment.edited.date == comment.created.date %}
+                                            <i class="fa fa-pencil comment-edit" aria-hidden="true"
+                                               data-comment-edit-title='изм. {{comment.edited|time:"H:i"}}'></i>
+                                        {% else %}
+                                            <i class="fa fa-pencil comment-edit" aria-hidden="true"
+                                               data-comment-edit-title='изм. {{comment.edited|date:"d.m.y"}} {{comment.edited|time:"H:i"}}'></i>
+                                        {% endif %}
                                     {% endif %}
                                 </span>
 
@@ -356,12 +361,17 @@
                                     <div class="comment-footer">
                                 <span class="date text-muted small">
                                     <i class="fa fa-calendar text-primary"
-                                       aria-hidden="true"></i>  {{ children.created|date:"SHORT_DATE_FORMAT" }}
+                                       aria-hidden="true"></i>  {{ children.created|date:"d.m.y" }}
                                     <i class="fa fa-clock-o text-primary"
                                        aria-hidden="true"></i>{{ children.created|time:"H:i" }}
                                     {% if children.edited %}
-                                        <i class="fa fa-pencil comment-edit" aria-hidden="true"
-                                           commentEditTitle='отред. {{children.edited|date:"SHORT_DATE_FORMAT"}} {{children.edited|time:"H:i"}}'></i>
+                                        {% if children.edited.date == children.created.date %}
+                                            <i class="fa fa-pencil comment-edit" aria-hidden="true"
+                                               data-comment-edit-title='изм. {{children.edited|time:"H:i"}}'></i>
+                                        {% else %}
+                                            <i class="fa fa-pencil comment-edit" aria-hidden="true"
+                                               data-comment-edit-title='изм. {{children.edited|date:"d.m.y"}} {{children.edited|time:"H:i"}}'></i>
+                                        {% endif %}
                                     {% endif %}
                                     <!-- {# children.created|timesince #} назад -->
                                 </span>
