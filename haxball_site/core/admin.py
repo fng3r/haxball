@@ -1,5 +1,6 @@
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
-from django.core.exceptions import PermissionDenied
+from django.contrib.admin import StackedInline
+from django.utils.html import escape, mark_safe
 from django_summernote.fields import SummernoteTextFormField
 from django import forms
 from django.contrib import admin
@@ -18,12 +19,57 @@ class PostAdminForm(forms.ModelForm):
         fields = '__all__'
 
 
+class CommentHistoryItemInline(StackedInline):
+    model = CommentHistoryItem
+    extra = 0
+    verbose_name_plural = 'История изменения комментария'
+
+    def has_add_permission(self, request, obj):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(CommentHistoryItem)
+class CommentHistoryItemAdmin(admin.ModelAdmin):
+    list_display = ('id', 'created', 'version', 'link_to_comment', 'get_author', 'body',)
+    list_filter = ('comment', 'comment__author')
+
+    def get_author(self, model):
+        return model.comment.author
+    get_author.short_description = 'Автор'
+
+    def link_to_comment(self, model):
+        link = reverse('admin:core_newcomment_change', args=[model.comment.id])
+        return mark_safe(f'<a href="{link}">{escape(model.comment.__str__())}</a>')
+    link_to_comment.short_description = 'Базовый комментарий'
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
 class NewCommentAdminForm(forms.ModelForm):
     body = SummernoteTextFormField(label='Комментарий')
 
     class Meta:
         model = NewComment
         fields = '__all__'
+
+
+@admin.register(NewComment)
+class NewCommentAdmin(admin.ModelAdmin):
+    list_display = ('id', 'author', 'parent', 'created', 'body', 'content_type', 'object_id', 'content_object')
+    list_filter = ('created', 'author')
+    search_fields = ('body',)
+    inlines = [CommentHistoryItemInline]
+    form = NewCommentAdminForm
 
 
 @admin.register(LikeDislike)
@@ -71,14 +117,6 @@ class UserIconAdmin(admin.ModelAdmin):
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('title', 'slug', 'description', 'is_official', 'theme')
     prepopulated_fields = {'slug': ('title',)}
-
-
-@admin.register(NewComment)
-class NewCommentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'author', 'parent', 'created', 'body', 'content_type', 'object_id', 'content_object')
-    list_filter = ('created', 'author')
-    search_fields = ('body',)
-    form = NewCommentAdminForm
 
 
 @admin.register(IPAdress)
