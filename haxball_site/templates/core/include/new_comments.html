@@ -181,7 +181,8 @@
                                     <i class="fa fa-clock-o text-primary" aria-hidden="true"></i>
                                     {{ comment.created|time:"H:i" }}
                                     {% if comment.edited %}
-                                        (изм. {{comment.edited|time:"H:i"}})
+                                        <i class="fa fa-pencil text-secondary" aria-hidden="true"
+                                           title='изм. {{comment.edited|date:"SHORT_DATE_FORMAT"}} {{comment.edited|time:"H:i"}}'></i>
                                     {% endif %}
                                 </span>
 
