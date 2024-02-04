@@ -163,7 +163,7 @@ def comment_edit(request, pk):
         if not can_edit(comment):
             return HttpResponse('Время на редактирование комментария истекло')
 
-        if comment.version > 5:
+        if comment.version > settings.EDIT_COMMENT_LIMIT:
             return HttpResponse('Достигнут лимит на количество изменений комментария')
 
     if request.method == 'POST':

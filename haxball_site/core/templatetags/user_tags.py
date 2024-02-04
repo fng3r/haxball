@@ -8,6 +8,7 @@ from online_users.models import OnlineUserActivity
 
 from ..models import Post, NewComment
 from tournament.models import Team, League
+from haxball_site import settings
 
 register = template.Library()
 
@@ -51,16 +52,16 @@ def karma(profile):
 @register.simple_tag
 def age(born_date):
     if date.today().month > born_date.month:
-        return (date.today().year - born_date.year)
-    elif born_date.month == date.today().month and date.today().day > born_date.day:
         return date.today().year - born_date.year
-    else:
-        return date.today().year - born_date.year - 1
+    if born_date.month == date.today().month and date.today().day > born_date.day:
+        return date.today().year - born_date.year
+
+    return date.today().year - born_date.year - 1
 
 
 @register.filter
 def can_edit(comment):
-    return timezone.now() - comment.created < timezone.timedelta(minutes=180)
+    return timezone.now() - comment.created < timezone.timedelta(minutes=settings.EDIT_COMMENT_TIME_LIMIT)
 
 
 @register.inclusion_tag('core/include/profile/last_actuvity.html')
