@@ -194,14 +194,14 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 if DEBUG:
-    STATIC_URL = '/static/'
+    STATIC_URL = config('APP_STATIC_URL', default='/static/')
     STATIC_DIR = os.path.join(BASE_DIR, 'static')
     STATICFILES_DIRS = [STATIC_DIR]
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 else:
     STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-    STATIC_URL = '/static/'
+    STATIC_URL = config('APP_STATIC_URL', default='/static/')
     MEDIA_URL = '/media/'
     MEDIA_ROOT = '/home/site/media'
 
