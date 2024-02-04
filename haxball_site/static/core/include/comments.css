@@ -111,3 +111,31 @@
 .mb-100 {
     margin-bottom: 100px
 }
+
+.comment-edit{
+    margin-left: 3px;
+    font-size: 16px;
+}
+
+.comment-edit:hover{
+    color: #ffc107!important;
+}
+
+
+[commentEditTitle]:after{
+    content: '';
+    transition: 1s;
+}
+
+[commentEditTitle]:hover:after {
+    margin-left: 10px;
+    width: 180px;
+    display: inline-block;
+    content: attr(commentEditTitle);
+    background: linear-gradient(270deg, #6DD5FA, #d2f2ff );
+    border-radius: 5px;
+    color: #919aa3 !important;
+    font-family:'Bitter', sans-serif !important;
+    font-size: 16px;
+    text-align: center;
+}
