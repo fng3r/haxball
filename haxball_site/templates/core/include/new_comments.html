@@ -96,9 +96,9 @@
                                         </div>
                                     </div>
                                     <span>
-                                            {% for medal in comment.author.user_player.player_medals.all %}
-                                                <img src="{{ medal.mini_image.url }}" width="20px" height="20px"
-                                                     title="{{ medal.description }}">
+                                            {% for achievement in comment.author.user_player.achievements.all %}
+                                                <img src="{{ achievement.mini_image.url }}" width="20px" height="20px"
+                                                     title="{{ achievement.description }}">
                                             {% endfor %}
                                         <a href="{{ object.get_absolute_url }}?page={{ comments.number }}#r{{ comment.id }}">#{{ comment.id }}</a>
                                         {% if user.is_superuser or comment.author == user and comment|can_edit %}
@@ -273,12 +273,6 @@
 
                                         </div>
                                         <span>
-                                            <!--
-                                            {% for medal in children.author.user_player.player_medals.all %}
-                                                <img src="{{ medal.mini_image.url }}" width="20px" height="20px"
-                                                     title="{{ medal.description }}">
-                                            {% endfor %}
-                                            -->
                                             <a href="{{ object.get_absolute_url }}?page={{ comments.number }}#r{{ children.id }}">#{{ children.id }}</a>
                                             {% if user.is_superuser or children.author == user and children|can_edit %}
 

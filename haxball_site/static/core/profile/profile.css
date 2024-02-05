@@ -133,3 +133,27 @@ h6 {
     -webkit-transition: all 0.3s ease-in-out;
     transition: all 0.3s ease-in-out
 }
+
+.profile_achievements-text{
+    font-family: sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+    letter-spacing: 1.5px;
+    font-size: 18px;
+    font-weight: 500;
+    text-shadow: 0.5px 1px 2px #000000;
+    color: #6c757d!important;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+.profile_achievemnts-medals{
+    display: flex;
+    flex-wrap: wrap;
+    text-shadow: 0.5px 1px 2px #6c757d;
+}
+
+.profile-achievements-item{
+    min-width: 90px;
+    text-align: center;
+    margin-bottom: 5px;s
+}
+

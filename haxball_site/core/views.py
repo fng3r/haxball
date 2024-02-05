@@ -16,7 +16,7 @@ from pytils.translit import slugify
 from .forms import CommentForm, EditProfileForm, PostForm, NewCommentForm
 from .models import Post, Profile, LikeDislike, Category, Themes, Comment, NewComment, IPAdress
 from haxball_site import settings
-from tournament.models import Team
+from tournament.models import Team, Achievements
 
 
 # Вьюха для списка постов
@@ -298,11 +298,11 @@ class ProfileDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        prof = context['profile']
-        prof.views = prof.views + 1
-        prof.save()
+        profile = context['profile']
+        profile.views = profile.views + 1
+        profile.save()
         comments_obj = NewComment.objects.filter(content_type=ContentType.objects.get_for_model(Profile),
-                                                 object_id=prof.id,
+                                                 object_id=profile.id,
                                                  parent=None)
 
         paginate = Paginator(comments_obj, 25)
@@ -321,6 +321,18 @@ class ProfileDetail(DetailView):
         context['comments'] = comments
         comment_form = NewCommentForm()
         context['comment_form'] = comment_form
+
+        all_achievements = Achievements.objects.filter(player__name=profile.name)
+        achievements_by_category = {}
+        for achievement in all_achievements:
+            category = 'Без категории'
+            if achievement.category:
+                category = achievement.category.title
+            if category not in achievements_by_category:
+                achievements_by_category[category] = list()
+            achievements_by_category[category].append(achievement)
+        context['achievements_by_category'] = achievements_by_category.items()
+
         return context
 
 

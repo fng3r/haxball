@@ -754,3 +754,24 @@ def players_in_history(team):
     a = sorted(players, key=lambda x: matches_in_team(x, team), reverse=True)
     print(a)
     return a
+
+
+@register.filter
+def team_achievements_by_season(team):
+    achievements = team.achievements.all()
+    achievements_by_season = dict()
+    for achievement in achievements:
+        season = achievement.season
+        if season not in achievements_by_season:
+            achievements_by_season[season] = list()
+        achievements_by_season[season].append(achievement)
+
+    return achievements_by_season.items()
+
+
+@register.filter
+def team_squad_in_season(season_achievements):
+    if len(season_achievements) > 0:
+        return season_achievements[0].players_raw_list
+
+    return ''
