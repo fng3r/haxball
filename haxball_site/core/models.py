@@ -11,7 +11,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
-
+from model_utils import FieldTracker
 
 
 class MyQuerySet(models.query.QuerySet):
@@ -121,25 +121,34 @@ class NewComment(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey()
     author = models.ForeignKey(User, verbose_name='Автор', related_name='n_comments_by_user', on_delete=models.CASCADE)
-    body = models.TextField()
-    # auto_now_add=True
-    created = models.DateTimeField(default=timezone.now)
+    body = models.TextField('Текст комментария')
+    created = models.DateTimeField('Создан', default=timezone.now)
+    edited = models.DateTimeField('Изменен', blank=True, null=True)
     parent = models.ForeignKey('self', verbose_name='Родитель', on_delete=models.SET_NULL, blank=True, null=True,
                                related_name="childs")
     votes = GenericRelation(LikeDislike, related_query_name='n_comments')
+    version = models.PositiveSmallIntegerField('Версия', default=1)
+
+    tracker = FieldTracker()
 
     class Meta:
-        verbose_name = 'Комментарий 2'
-        verbose_name_plural = 'Комментарии 2'
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
         ordering = ('-created',)
 
+    def save(self, *args, **kwargs):
+        if self.pk and self.tracker.has_changed('body'):
+            self.edited = timezone.now()
+            self.version = self.tracker.previous('version') + 1
+        super(NewComment, self).save(*args, **kwargs)
+
     def __str__(self):
-        return 'Комментарий от {} к {}'.format(self.author, self.content_type)
+        return 'Комментарий от {} к {}'.format(self.author, self.content_object)
 
     def get_absolute_url(self):
         obj = self.content_object
-        a = list(self.content_object.comments.filter(parent = None))
-        b = list(self.content_object.comments.filter(~Q(parent = None)))
+        a = list(self.content_object.comments.filter(parent=None))
+        b = list(self.content_object.comments.filter(~Q(parent=None)))
         if self in b:
             return self.get_parent().get_absolute_url()
         ind = a.index(self)
@@ -148,7 +157,7 @@ class NewComment(models.Model):
 
     def get_parent(self):
         obj = self
-        while obj.parent != None:
+        while obj.parent is not None:
             obj = obj.parent
         return obj
 
@@ -163,6 +172,32 @@ class NewComment(models.Model):
 
     def childs_count(self):
         return len(list(bfs(self)))
+
+
+class CommentHistoryItem(models.Model):
+    body = models.TextField('Текст комментария')
+    created = models.DateTimeField('Дата')
+    comment = models.ForeignKey(NewComment, verbose_name='Базовый комментарий', on_delete=models.CASCADE,
+                                related_name="comment_history")
+    version = models.PositiveSmallIntegerField('Версия', default=1)
+
+    class Meta:
+        verbose_name = ''
+        verbose_name_plural = 'История комментарев'
+        ordering = ('-comment__id', '-created',)
+
+    @receiver(post_save, sender=NewComment)
+    def create_comment_history_item(sender, instance, created, **kwargs):
+        if not created and instance.tracker.has_changed('body'):
+            previous_created = instance.tracker.previous('edited') or instance.created
+            previous_comment = instance.tracker.previous('body')
+            previous_version = instance.tracker.previous('version')
+            CommentHistoryItem(body=previous_comment, created=previous_created,
+                               comment=instance, version=previous_version).save()
+
+    def __str__(self):
+        print(self.created)
+        return 'Версия комментария #{}'.format(self.version)
 
 
 # Модель для поста
