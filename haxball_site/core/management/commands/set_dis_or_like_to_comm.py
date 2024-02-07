@@ -38,21 +38,3 @@ class Command(BaseCommand):
                 vt = LikeDislike.objects.create(content_type=ContentType.objects.get_for_model(comment), object_id=comment.id, content_object=comment,
                                                  user=i, vote=vote)
                 print('Создали ', vt)
-        """
-        for comment in NewComment.objects.filter(author=user.id):
-            from_marik = comment.votes.filter(user=user_from.id)
-            #print(len(from_marik))
-            if len(from_marik) == 1:
-                ldl = from_marik[0]
-                ldl.vote = vote
-                ldl.save()
-            else:
-                dis = LikeDislike.objects.create(content_type=ContentType.objects.get_for_model(comment), object_id=comment.id, content_object=comment,
-                                                 user=user_from, vote=vote)
-                print('Создали ', dis)
-                """
-            # for i in comment.votes.all():
-            #   from_marik = i.
-            #   print(i)
-            #    print(i.user)
-            # print(comment)
