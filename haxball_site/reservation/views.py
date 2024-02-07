@@ -1,5 +1,4 @@
 from datetime import timedelta, datetime, time
-from .forms import ReservationEntryForm
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST

@@ -194,14 +194,14 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 if DEBUG:
-    STATIC_URL = '/static/'
+    STATIC_URL = config('APP_STATIC_URL', default='/static/')
     STATIC_DIR = os.path.join(BASE_DIR, 'static')
     STATICFILES_DIRS = [STATIC_DIR]
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 else:
     STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-    STATIC_URL = '/static/'
+    STATIC_URL = config('APP_STATIC_URL', default='/static/')
     MEDIA_URL = '/media/'
     MEDIA_ROOT = '/home/site/media'
 
@@ -213,6 +213,9 @@ ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 SITE_ID = 1
 
 URL_PREFIX = config('APP_URL_PREFIX', default='')
+
+EDIT_COMMENT_TIME_LIMIT = config('APP_EDIT_COMMENT_TIME_LIMIT', cast=int, default=180)
+EDIT_COMMENT_LIMIT = config('APP_EDIT_COMMENT_LIMIT', cast=int, default=5)
 
 # Grapelli config
 GRAPPELLI_ADMIN_TITLE = 'Место уважаемых администраторов'

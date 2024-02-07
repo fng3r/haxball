@@ -1,5 +1,6 @@
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
-from django.core.exceptions import PermissionDenied
+from django.contrib.admin import StackedInline
+from django.utils.html import escape, mark_safe
 from django_summernote.fields import SummernoteTextFormField
 from django import forms
 from django.contrib import admin
@@ -18,27 +19,57 @@ class PostAdminForm(forms.ModelForm):
         fields = '__all__'
 
 
-class CommentAdminForm(forms.ModelForm):
+class CommentHistoryItemInline(StackedInline):
+    model = CommentHistoryItem
+    extra = 0
+    verbose_name_plural = 'История изменения комментария'
+
+    def has_add_permission(self, request, obj):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(CommentHistoryItem)
+class CommentHistoryItemAdmin(admin.ModelAdmin):
+    list_display = ('id', 'created', 'version', 'link_to_comment', 'get_author', 'body',)
+    list_filter = ('comment__author',)
+
+    def get_author(self, model):
+        return model.comment.author
+    get_author.short_description = 'Автор'
+
+    def link_to_comment(self, model):
+        link = reverse('admin:core_newcomment_change', args=[model.comment.id])
+        return mark_safe(f'<a href="{link}">{escape(model.comment.__str__())}</a>')
+    link_to_comment.short_description = 'Базовый комментарий'
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
+class NewCommentAdminForm(forms.ModelForm):
     body = SummernoteTextFormField(label='Комментарий')
 
     class Meta:
-        model = Comment
-        fields = '__all__'
+        model = NewComment
+        fields = ('author', 'body', 'created', 'edited', 'content_type', 'object_id')
 
 
-
-
-"""
-def delete_selected(modeladmin, request, queryset):
-    if not modeladmin.has_delete_permission(request):
-        raise PermissionDenied
-    if request.POST.get('post'):
-        for obj in queryset:
-            obj.delete()
-    else:
-        return delete_selected(modeladmin, request, queryset)
-delete_selected.short_description = "Delete selected objects"
-"""
+@admin.register(NewComment)
+class NewCommentAdmin(admin.ModelAdmin):
+    list_display = ('id', 'author', 'parent', 'created', 'edited', 'body', 'content_type', 'object_id', 'content_object')
+    list_filter = ('created', 'author')
+    search_fields = ('body',)
+    inlines = [CommentHistoryItemInline]
+    form = NewCommentAdminForm
 
 
 @admin.register(LikeDislike)
@@ -47,10 +78,6 @@ class LikeDisLikeAdmin(admin.ModelAdmin):
     list_filter = ('user',)
     list_display_links = ('id',)
     list_editable = ('vote',)
-
-
-class CommentInline(admin.StackedInline):
-    model = Comment
 
 
 @admin.register(Post)
@@ -90,23 +117,6 @@ class UserIconAdmin(admin.ModelAdmin):
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('title', 'slug', 'description', 'is_official', 'theme')
     prepopulated_fields = {'slug': ('title',)}
-
-"""
-# Старые комменты
-@admin.register(Comment)
-class CommentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'author', 'created', 'body',)
-    list_filter = ('created', 'author')
-    search_fields = ('body',)
-    form = CommentAdminForm
-"""
-
-@admin.register(NewComment)
-class NewCommentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'author', 'parent', 'created', 'body', 'content_type', 'object_id', 'content_object')
-    list_filter = ('created', 'author')
-    search_fields = ('body',)
-    form = CommentAdminForm
 
 
 @admin.register(IPAdress)

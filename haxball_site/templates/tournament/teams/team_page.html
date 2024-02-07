@@ -17,6 +17,7 @@
 {% block title %}Чемпионат | Команда {{ team.title }}         cis-haxball.com {% endblock %}
 
 {% block profile_of_user %}
+    {% cache 6000 team_detail team %}
 
         <div class="container-fluid emp-profile"
              style="background:linear-gradient(to right, {{ team.color_1 }}, {{ team.color_2 }})">
