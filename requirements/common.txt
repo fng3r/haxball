@@ -2,7 +2,7 @@ asgiref==3.2.10
 backcall==0.2.0
 certifi==2020.6.20
 chardet==3.0.4
-colorama==0.4.3
+colorama==0.4.6
 decorator==4.4.2
 defusedxml==0.6.0
 Django==3.0.8
