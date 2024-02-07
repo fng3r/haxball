@@ -315,14 +315,14 @@ def team_score_in_match(team, match):
 def round_name(tour, all_tours):
     if tour == all_tours:
         return 'Финал'
-    elif tour == all_tours - 1:
+    if tour == all_tours - 1:
         return '1/2 Финала'
-    elif tour == all_tours - 2:
+    if tour == all_tours - 2:
         return '1/4 Финала'
-    elif tour == all_tours - 3:
+    if tour == all_tours - 3:
         return '1/8 Финала'
-    else:
-        return '{} Раунд'.format(tour)
+
+    return '{} Раунд'.format(tour)
 
 
 @register.inclusion_tag('tournament/include/league_table.html')
@@ -502,12 +502,6 @@ def get_team_assistent(team):
     return Player.objects.filter(team=team, role='AC')
 
 
-#       Получаем текущую "Лигу" команды
-@register.filter
-def current_league(team):
-    return League.objects.filter(teams=team, championship__is_active=True)
-
-
 @register.filter
 def all_league_season(team, season):
     return League.objects.filter(teams=team, championship=season).order_by('-id')
@@ -516,55 +510,6 @@ def all_league_season(team, season):
 @register.filter
 def all_seasons(team):
     return Season.objects.filter(tournaments_in_season__teams=team).distinct().order_by('-number')
-
-
-"""
-def sort_teams(league):
-    b = list(Team.objects.filter(leagues=league))
-    points = [0 for _ in range(len(b))]
-    diffrence = [0 for _ in range(len(b))]
-    scores = [0 for _ in range(len(b))]
-    for i, team in enumerate(b):
-        matches = Match.objects.filter((Q(team_home=team) | Q(team_guest=team)), league=league, is_played=True)
-        win_count = 0
-        draw_count = 0
-        loose_count = 0
-        goals_scores_all = 0
-        goals_consided_all = 0
-        for m in matches:
-            score_team = 0
-            score_opp = 0
-            for g in m.match_goal.all():
-                if g.team == team:
-                    score_team += 1
-                else:
-                    score_opp += 1
-            for og in m.match_event.filter(event='OG'):
-                if og.team == team:
-                    score_opp += 1
-                else:
-                    score_team += 1
-
-            goals_scores_all += score_team
-            goals_consided_all += score_opp
-
-            if score_team > score_opp:
-                win_count += 1
-            elif score_team == score_opp:
-                draw_count += 1
-        points[i] = win_count * 3 + draw_count * 1
-        diffrence[i] = goals_scores_all - goals_consided_all
-        scores[i] = goals_scores_all
-
-    l = zip(b, points, diffrence, scores)
-
-    s1 = sorted(l, key=lambda x: x[3], reverse=True)
-    s2 = sorted(s1, key=lambda x: x[2], reverse=True)
-    ls = sorted(s2, key=lambda x: x[1], reverse=True)
-    lit = [i[0] for i in ls]
-    queryset = lit
-    return queryset
-"""
 
 
 def sort_teams(league):
@@ -582,7 +527,6 @@ def sort_teams(league):
     for i, team in enumerate(b):
         matches = Match.objects.filter((Q(team_home=team) | Q(team_guest=team)), league=league, is_played=True)
         matches_played[i] = matches.count()
-        # last_matches[i] = [(m, 0) for m in matches]
         win_count = 0
         draw_count = 0
         loose_count = 0
@@ -709,22 +653,30 @@ def sort_teams(league):
 
 
 @register.filter
-def current_position(team):
+def current_league(team):
     try:
-        leag = current_league(team).first()
-        a = list(sort_teams(leag))
-        return a.index(team) + 1
+        return League.objects.filter(teams=team, is_cup=False, championship__is_active=True).first()
     except:
+        return None
+
+
+@register.filter
+def current_position(team):
+    league = current_league(team)
+    if not league:
         return '-'
+
+    a = list(sort_teams(league))
+    return a.index(team) + 1
 
 
 @register.filter
 def teams_in_league_count(team):
-    try:
-        leag = current_league(team).first()
-        return leag.teams.count()
-    except:
+    league = current_league(team)
+    if not league:
         return '-'
+
+    return league.teams.count()
 
 
 @register.filter
