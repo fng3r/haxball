@@ -37,7 +37,7 @@ class CommentHistoryItemInline(StackedInline):
 @admin.register(CommentHistoryItem)
 class CommentHistoryItemAdmin(admin.ModelAdmin):
     list_display = ('id', 'created', 'version', 'link_to_comment', 'get_author', 'body',)
-    list_filter = ('comment', 'comment__author')
+    list_filter = ('comment__author',)
 
     def get_author(self, model):
         return model.comment.author
@@ -60,12 +60,12 @@ class NewCommentAdminForm(forms.ModelForm):
 
     class Meta:
         model = NewComment
-        fields = '__all__'
+        fields = ('author', 'body', 'created', 'edited', 'content_type', 'object_id')
 
 
 @admin.register(NewComment)
 class NewCommentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'author', 'parent', 'created', 'body', 'content_type', 'object_id', 'content_object')
+    list_display = ('id', 'author', 'parent', 'created', 'edited', 'body', 'content_type', 'object_id', 'content_object')
     list_filter = ('created', 'author')
     search_fields = ('body',)
     inlines = [CommentHistoryItemInline]
