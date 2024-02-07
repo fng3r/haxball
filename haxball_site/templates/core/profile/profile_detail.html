@@ -8,7 +8,7 @@
 
 {% endblock %}
 {% block scripts %}
-    <script type="text/javascript" src="{% static "core/js/like-dislike.js" %}"></script>
+    <script type="text/javascript" src="{% static 'core/js/like-dislike.js' %}"></script>
     <script>
 
         function myFunction() {
@@ -117,20 +117,6 @@
                          style="background-image:url({{ profile.background.url }}); background-size: cover; background-repeat: no-repeat;"
                             {% endif %}>
 
-                        <!--
-                         <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <li class="nav-item">
-                <a class="nav-link active" id="squad-tab" data-toggle="tab" href="#profile_tab" role="tab"
-                   aria-controls="profile_user-tab" aria-selected="true">Профиль пользователя</a>
-            </li>
-            {% if profile.name.user_player %}
-            <li class="nav-item">
-                <a class="nav-link" id="detail-tab" data-toggle="tab" href="#detail_stat" role="tab"
-                   aria-controls="detail_stat-tab" aria-selected="false">Статистика игрока</a>
-            </li>
-            {% endif %}
-        </ul>
-                         -->
                         <div class="card-block">
 
                             <div class="tab-content">
@@ -230,8 +216,12 @@
             </div>
         </div>
     </div>
-
+<script type="text/javascript" src="{% static 'scripts/profileScripts.js' %}"></script>
 {% endblock %}
+
+
+
+
 
 {% block comments %}
     {% include 'core/include/new_comments.html' with object=profile comments=comments %}

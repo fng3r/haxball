@@ -169,10 +169,6 @@ h6 {
     margin-bottom: 30px;
 }
 
-.profile-tabs a{
-    color: #6c757d!important;
-    text-decoration: none;
-}
 
 
 .profile-info-table{
@@ -217,10 +213,11 @@ h6 {
     transition: 1s;
 }
 
-.profile-avatar{
-    width: 360px;
-    height: 360px;
-    border-radius: 5px;
 
-    border: 1px solid #000000;
+#profile-info-tab{
+    color: black;
+}
+
+#profile-achievements-tab{
+
 }
