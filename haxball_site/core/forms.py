@@ -8,20 +8,8 @@ from .models import Comment, Profile, Post, NewComment
 class NewCommentForm(forms.ModelForm):
     body = SummernoteTextFormField()
 
-    # body = forms.CharField(widget=FroalaEditor(theme='dark'))
-
     class Meta:
         model = NewComment
-        fields = ('body',)
-
-
-class CommentForm(forms.ModelForm):
-    body = SummernoteTextFormField()
-
-    # body = forms.CharField(widget=FroalaEditor(theme='dark'))
-
-    class Meta:
-        model = Comment
         fields = ('body',)
 
 

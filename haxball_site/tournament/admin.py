@@ -21,12 +21,14 @@ class AchievmentCategoryAdmin(admin.ModelAdmin):
 class AchievementsAdmin(admin.ModelAdmin):
     list_display = ('id', 'position_number', 'title', 'description', 'category', 'image', 'mini_image')
     filter_horizontal = ('player',)
+    search_fields = ('title__icontains', 'description__icontains',)
 
 
 @admin.register(TeamAchievement)
 class TeamAchievementAdmin(admin.ModelAdmin):
     list_display = ('id', 'season', 'title', 'description', 'players_raw_list', 'position_number', 'image')
     filter_horizontal = ('team',)
+    search_fields = ('title__icontains', 'description__icontains',)
 
 
 @admin.register(Player)
@@ -41,11 +43,23 @@ class PlayerAdmin(admin.ModelAdmin):
 class PlayerTransferAdmin(admin.ModelAdmin):
     list_display = ('trans_player', 'to_team', 'date_join', 'season_join')
     list_filter = ('trans_player', 'to_team',)
+    autocomplete_fields = ('trans_player',)
+
+
+class PlayerInline(admin.StackedInline):
+    model = Player
+
+    def has_add_permission(self, request, obj):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
     list_display = ('title', 'short_title', 'owner',)
+    inlines = [PlayerInline]
 
 
 @admin.register(Season)

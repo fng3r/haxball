@@ -10,27 +10,6 @@ class Command(BaseCommand):
     help = 'The Zen of Python'
 
     def handle(self, *args, **options):
-        """
-        all_old = Comment.objects.all().exclude(Q(childs = None) & ~Q(parent=None)).order_by('created')
-        added = []
-        print(all_old)
-        for com in all_old:
-            post = com.post
-            print(post)
-            if com not in added:
-                if com.parent == None:
-                    #NewComment.objects.create(content_type=ContentType.objects.get_for_model(Post), object_id=post.id)
-                    print(com.id, com, com.created)
-                    added.append(com)
-            # if com.has_childs():
-            for child in com.childs.all():
-                print(child.id, child, child.parent)
-                # NewComment.objects.create(content_type=ContentType.objects.get_for_model(Post),
-                # object_id=post.id, parent=com)
-                added.append(child)
-            for ldl in com.votes.all():
-                print(ldl)
-        """
         all_com = list(Comment.objects.all())
         new_com = []
         for com in all_com:
