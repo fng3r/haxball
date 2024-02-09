@@ -44,7 +44,7 @@
                 <div class="row m-l-0 m-r-0">
                     <div class="col-sm-4 bg-c-lite-green user-profile">
                         <div class="card-block text-center text-white">
-                            <div class="profile-avatar" style="background-image: url({{ profile.avatar.url }}); width: 310px; height: 310px; border-radius: 10px; margin-top: 0 auto; background-size: cover"></div>
+                            <div class="profile-avatar" style="background-image: url({{ profile.avatar.url }}); width: 90%; height: 280px; border-radius: 10px; margin: 0 auto; background-position: 50%; background-size: cover"></div>
                             <h3 class="f-w-600">{{ profile.name }}
                                 {% for icon in profile.user_icon.all %}
                                     <img src="{{ icon.image.url }}" width="25px" height="25px"
