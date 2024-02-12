@@ -286,13 +286,29 @@ class IPAdress(models.Model):
     update = models.DateTimeField('Последний заход', default=timezone.now)
     suspicious = models.BooleanField('Подозрительный', default=False)
 
+    def __str__(self):
+        return '({}, {})'.format(self.name, self.ip)
+
     class Meta:
         verbose_name = 'IP-Адрес'
         verbose_name_plural = 'IP-Адреса'
 
-    # Модель для профиля пользователя
+
+class UserActivity(models.Model):
+    user = models.ForeignKey(User, verbose_name='Пользователь', on_delete=models.CASCADE)
+    ip = models.GenericIPAddressField('IP-адрес')
+    user_agent = models.CharField(max_length=200, verbose_name='User-Agent')
+    id_token = models.CharField(max_length=32, verbose_name='IdToken')
+    first_seen = models.DateTimeField('Первый заход', auto_now_add=True)
+    last_seen = models.DateTimeField('Последний заход', auto_now_add=True)
+    has_duplicates = models.BooleanField('Есть дубликаты', default=False)
+
+    class Meta:
+        verbose_name = 'Пользовательская активность'
+        verbose_name_plural = 'Пользовательская активность'
 
 
+# Модель для профиля пользователя
 class Profile(models.Model):
     name = models.OneToOneField(User, verbose_name='Пользователь', on_delete=models.CASCADE,
                                 related_name='user_profile')
@@ -311,7 +327,6 @@ class Profile(models.Model):
     commentable = models.BooleanField("Комментируемый профиль", default=True)
     can_vote = models.BooleanField('Может голосовать', default=True)
     can_comment = models.BooleanField('Может комментировать', default=True)
-
 
     @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):
