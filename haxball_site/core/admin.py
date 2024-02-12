@@ -122,8 +122,8 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(IPAdress)
 class IPAdressAdmin(admin.ModelAdmin):
     list_display = ('ip', 'name', 'created', 'update', 'suspicious')
-    list_filter = ('ip', 'name')
-    search_fields = ('ip',)
+    list_filter = ('ip', 'name', 'suspicious')
+    search_fields = ('ip', 'name__username')
 
 
 @admin.register(UserActivity)
