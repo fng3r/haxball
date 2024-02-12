@@ -4,6 +4,7 @@ from colorfield.fields import ColorField
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
+from django.db.models import CheckConstraint, Q, F
 from django.urls import reverse
 from django.utils import timezone
 from smart_selects.db_fields import ChainedForeignKey
@@ -96,7 +97,7 @@ class Team(models.Model):
         return self.leagues.filter(championship__is_active=True)
 
     def __str__(self):
-        return 'Команда {}'.format(self.title)
+        return '{}'.format(self.title)
 
     class Meta:
         verbose_name = 'Команда'
@@ -323,12 +324,24 @@ class Substitution(models.Model):
         verbose_name_plural = 'Замены'
 
 
+class Disqualification(models.Model):
+    match = models.ForeignKey(Match, verbose_name='Матч', null=False, on_delete=models.CASCADE)
+    team = models.ForeignKey(Team, verbose_name='Команда', related_name='disqualifications', null=False,
+                             on_delete=models.CASCADE)
+    player = ChainedForeignKey(Player, verbose_name='Игрок', chained_field='team', chained_model_field='team',
+                               related_name='disqualifications', null=False, on_delete=models.CASCADE)
+    reason = models.CharField('Причина дисквалификации', max_length=150, null=True)
+    duration = models.CharField('Длительность дисквалификации', max_length=100, null=False)
+    created = models.DateTimeField('Дата', auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Дисквалификация'
+        verbose_name_plural = 'Дисквалификации'
+
+
 class OtherEvents(models.Model):
     match = models.ForeignKey(Match, verbose_name='Матч', related_name='match_event', null=True,
                               on_delete=models.CASCADE)
-    # team = ChainedForeignKey(Team, chained_field='match', verbose_name='Команда',
-    #                         chained_model_field='leagues__matches_in_league', null=True,
-    #                         on_delete=models.SET_NULL)
 
     team = models.ForeignKey(Team, verbose_name='Команда', related_name='team_events', null=True,
                              on_delete=models.SET_NULL)

@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'tournament.apps.TournamentConfig',
     'polls.apps.PollsConfig',
     'reservation.apps.ReservationConfig',
+    'django_filters',
     'smart_selects',
     'grappelli',
     'colorfield',

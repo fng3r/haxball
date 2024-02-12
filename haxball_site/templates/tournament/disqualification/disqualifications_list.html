@@ -1,0 +1,68 @@
+{% extends "core/home.html" %}
+{% load static %}
+{% load tournament_extras %}
+<link rel="stylesheet" type="text/css" href="{% static 'tournament/disqualification/disqualifications_list.css' %}">
+
+<div class=mycontent">
+    asdfjsdlfsjdfljsjlfsljdfljsdljfljsdljfljsdljf
+</div>
+
+{% block title %}Дисквалификации {% endblock %}
+{% block profile_of_user %}
+    <div class="card mb-2 mt-2" style="border-radius: 10px">
+        <h2 class="text-center my-2">
+            <i class="fa fa-search-plus text-success" aria-hidden="true"></i>Дисквалификации
+        </h2>
+        <div class="container-fluid p-0 mx-0">
+            <form method="get">
+                {{ filter.form }}
+                <button style="visibility: none;">Apply filter</button>
+            </form>
+                            {{ filter.form.render }}
+            <div class="table-fix table-responsive">
+                <table class="table table-hover" style="max-width: 100%">
+                    <thead class="thead-dark py-2 text-center">
+                    <tr>
+                        <th scope="col">Команда</th>
+                        <th scope="col">Игрок</th>
+                        <th scope="col">Причина дисквалификации</th>
+                        <th scope="col">Длительность дисквалификации</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for disqualification in filter.qs %}
+                        <tr>
+                            <th scope="row" class="pl-2 pr-1">
+                                <div class="media">
+                                    <img src="{{ disqualification.team.logo.url }}" class="align-self-start mr-1"
+                                         alt="{{ disqualification.team.title }}" width="28" style="border-radius: 100%">
+                                    <div class="media-body">
+                                        <h6 class="mt-0"><a
+                                                href="{{ disqualification.team.get_absolute_url }}">{{ disqualification.team.title }}</a>
+                                        </h6>
+                                    </div>
+                                </div>
+                            </th>
+                            <th scope="row" class="pl-2 pr-1">
+                                <div class="media">
+                                    <img src="{{ disqualification.player.name.user_profile.avatar.url }}" class="align-self-start mr-1"
+                                         alt="{{ disqualification.player.nickname }}" width="28" style="border-radius: 100%">
+                                    <div class="media-body">
+                                        <h6 class="mt-0"><a
+                                                href="{{ disqualification.player.name.user_profile.get_absolute_url }}">{{ disqualification.player }}</a>
+                                        </h6>
+                                    </div>
+                                </div>
+                            </th>
+                            <td>
+                                <div style="width: 100%; font-size: 13px; text-align: center;">{{ disqualification.reason }}</div>
+                            </td>
+                            <td style="text-align: center;font-size: small">{{ disqualification.duration }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

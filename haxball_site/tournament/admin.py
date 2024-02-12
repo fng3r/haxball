@@ -4,7 +4,7 @@ from django.db.models import Q
 from django.urls import resolve
 
 from .models import FreeAgent, Player, League, Team, Match, Goal, OtherEvents, Substitution, Season, PlayerTransfer, \
-    TourNumber, Nation, Achievements, TeamAchievement, AchievementCategory
+    TourNumber, Nation, Achievements, TeamAchievement, AchievementCategory, Disqualification
 
 
 @admin.register(FreeAgent)
@@ -110,6 +110,22 @@ class SubstitutionInline(admin.StackedInline):
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
+class DisqualificationInline(admin.StackedInline):
+    model = Disqualification
+    extra = 1
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        resolved = resolve(request.path_info)
+        not_found = False
+        try:
+            match = self.parent_model.objects.get(id=resolved.kwargs['object_id'])
+        except:
+            not_found = True
+        if db_field.name == "team" and not not_found:
+            kwargs["queryset"] = Team.objects.filter(Q(home_matches=match) | Q(guest_matches=match)).distinct()
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
 class EventInline(admin.StackedInline):
     model = OtherEvents
     extra = 2
@@ -124,10 +140,6 @@ class EventInline(admin.StackedInline):
         if db_field.name == "team" and not not_found:
             kwargs["queryset"] = Team.objects.filter(Q(home_matches=match) | Q(guest_matches=match)).distinct()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
-
-
-
 
 
 @admin.register(Match)
@@ -152,8 +164,6 @@ class MatchAdmin(admin.ModelAdmin):
             kwargs["queryset"] = Player.objects.filter(team=t)
         return super().formfield_for_manytomany(db_field, request, **kwargs)
 
-
-
     list_filter = ('numb_tour__number', 'league', 'inspector', 'is_played')
     fieldsets = (
         ('Основная инфа', {
@@ -176,7 +186,7 @@ class MatchAdmin(admin.ModelAdmin):
     )
     # fields = ['is_played', 'league', 'tour_num', 'match_date', ('team_home', 'team_guest'),
     #          ('team_home_start', 'team_guest_start')]
-    inlines = [GoalInline, SubstitutionInline, EventInline]
+    inlines = [GoalInline, SubstitutionInline, EventInline, DisqualificationInline]
 
 
 @admin.register(Goal)
