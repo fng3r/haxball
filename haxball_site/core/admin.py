@@ -125,3 +125,18 @@ class IPAdressAdmin(admin.ModelAdmin):
     list_filter = ('ip', 'name')
     search_fields = ('ip',)
 
+
+@admin.register(UserActivity)
+class UserActivityAdmin(admin.ModelAdmin):
+    list_display = ('user', 'ip', 'id_token', 'user_agent', 'first_seen', 'last_seen', 'has_duplicates')
+    list_filter = ('user', 'id_token', 'user_agent', 'has_duplicates')
+    search_fields = ('user__username', 'ip', 'id_token')
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
