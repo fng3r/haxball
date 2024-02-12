@@ -50,7 +50,8 @@ class UserTrackingMiddleware:
             return response
 
         if is_new_user_token:
-            response.set_cookie(ID_TOKEN_COOKIE_NAME, user_token)
+            response.set_cookie(ID_TOKEN_COOKIE_NAME, user_token, samesite='Lax',
+                                expires=timezone.now() + timezone.timedelta(days=365))
 
         try:
             user_activity = UserActivity.objects.get(user=request.user, ip=user_ip, user_agent=user_agent,
