@@ -205,10 +205,18 @@ def user_in(objects, user):
     return False
 
 
+@register.filter
+def usernames_list(likes):
+    return ', '.join(map(lambda like: like.user.username, likes))
+
+
+@register.filter
+def can_view_likes_details(comment, user):
+    return user.is_superuser or comment.author == user
+
+
 @register.inclusion_tag('core/include/teams_in_navbar.html')
 def teams_in_navbar():
-    # l = League.objects.filter(championship__is_active=True, is_cup=False).order_by('priority')
-    # return {'leagues': l}
     all_teams = Team.objects.all().order_by('title')
     teams = []
     for t in all_teams:
