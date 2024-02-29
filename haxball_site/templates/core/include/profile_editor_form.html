@@ -17,15 +17,17 @@
                                 <input id="avatar-file" type="file" name="avatar" accept="image/*">
                             </label>
 
-                            <label for="bg-file">
-                                <i class="fa fa-paperclip" aria-hidden="true"></i> Фон
-                                <input id="bg-file" type="file" name="background" />
-                            </label>
+                            {% if profile.name|can_edit_profile_bg %}
+                                <label for="bg-file">
+                                    <i class="fa fa-paperclip" aria-hidden="true"></i> Фон
+                                    <input id="bg-file" type="file" name="background" />
+                                </label>
 
-                            <label for="bg-removed">
-                                Удалить фон
-                                <input id="bg-removed" type="checkbox" name="bg-removed">
-                            </label>
+                                <label for="bg-removed">
+                                    Удалить фон
+                                    <input id="bg-removed" type="checkbox" name="bg-removed">
+                                </label>
+                            {% endif %}
                         </div>
                         <h4 class="f-w-600">{{ profile.name }}
                             {% if profile.name.is_superuser %}

@@ -1,6 +1,7 @@
 from datetime import date, datetime
 
 from django import template
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Q
 from django.utils import timezone
@@ -203,6 +204,11 @@ def user_in(objects, user):
         except:
             return False
     return False
+
+
+@register.filter
+def can_edit_profile_bg(user: User):
+    return user.is_superuser
 
 
 @register.inclusion_tag('core/include/teams_in_navbar.html')
