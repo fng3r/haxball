@@ -358,3 +358,40 @@ class UserIcon(models.Model):
     class Meta:
         verbose_name = 'Иконка'
         verbose_name_plural = 'Иконки'
+
+
+class SubscriptionQuerySet(models.QuerySet):
+    def by_user(self, user):
+        return self.filter(user=user)
+
+    def active(self):
+        now = timezone.now()
+        return self.filter(disabled=False, starts_at__lte=now, expires_at__gte=now)
+
+
+class Subscription(models.Model):
+    TIER_1 = 1
+    TIER_2 = 2
+
+    TIERS = (
+        (TIER_1, 'Tier 1'),
+        (TIER_2, 'Tier 2')
+    )
+
+    user = models.ForeignKey(User, verbose_name='Пользователь', related_name='subscriptions',
+                             on_delete=models.SET_NULL, null=True)
+    starts_at = models.DateTimeField('Дата начала', default=timezone.now())
+    expires_at = models.DateTimeField('Дата окончания')
+    tier = models.PositiveSmallIntegerField('Тир подписки', choices=TIERS, default=TIER_1)
+    disabled = models.BooleanField('Отключена', default=False)
+
+    objects = SubscriptionQuerySet.as_manager()
+
+    def is_active(self):
+        now = timezone.now()
+        return not self.disabled and self.starts_at <= now <= self.expires_at
+
+    class Meta:
+        ordering = ['-starts_at']
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'

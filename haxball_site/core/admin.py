@@ -140,3 +140,16 @@ class UserActivityAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+@admin.register(Subscription)
+class SubscriptionAdmin(admin.ModelAdmin):
+    list_display = ('user', 'starts_at', 'expires_at', 'tier', 'is_active', 'disabled')
+    list_filter = ('user', 'tier', 'disabled')
+    autocomplete_fields = ('user',)
+    search_fields = ('user__username',)
+
+    def is_active(self, model):
+        return model.is_active()
+    is_active.boolean = True
+    is_active.short_description = 'Активна'
