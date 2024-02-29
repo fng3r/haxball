@@ -344,6 +344,10 @@ class EditMyProfile(DetailView, View):
         if profile_form.is_valid():
             if 'avatar' in request.FILES:
                 profile.avatar = request.FILES['avatar']
+            if 'background' in request.FILES:
+                profile.background = request.FILES['background']
+            if request.POST.get('bg-removed') == 'on':
+                profile.background = None
             profile_form.save()
         return redirect(profile.get_absolute_url())
 
