@@ -7,7 +7,7 @@ from django.db.models import Count, Q
 from django.utils import timezone
 from online_users.models import OnlineUserActivity
 
-from ..models import Post, NewComment
+from ..models import Post, NewComment, Subscription
 from tournament.models import Team, League
 from haxball_site import settings
 
@@ -208,7 +208,11 @@ def user_in(objects, user):
 
 @register.filter
 def can_edit_profile_bg(user: User):
-    return user.is_superuser
+    if user.is_superuser:
+        return True
+
+    subscriptions = Subscription.objects.by_user(user).active().order_by('tier')
+    return subscriptions.count() > 0
   
 
 @register.filter
@@ -218,7 +222,11 @@ def usernames_list(likes):
 
 @register.filter
 def can_view_likes_details(comment, user):
-    return user.is_superuser or comment.author == user
+    if user.is_superuser:
+        return True
+
+    subscriptions = Subscription.objects.by_user(user).active().order_by('tier')
+    return comment.author == user and subscriptions.count() > 0
 
 
 @register.inclusion_tag('core/include/teams_in_navbar.html')
