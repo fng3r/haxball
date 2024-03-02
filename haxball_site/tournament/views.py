@@ -1,3 +1,5 @@
+from datetime import datetime, time
+
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Count, F, Q, Sum
@@ -7,7 +9,7 @@ from django.utils import timezone
 from django.views.generic import ListView, DetailView
 
 from .forms import FreeAgentForm, EditTeamProfileForm
-from .models import FreeAgent, Team, Match, League, Player, Substitution, Season
+from .models import FreeAgent, Team, Match, League, Player, Substitution, Season, Goal, OtherEvents
 from core.forms import NewCommentForm
 from core.models import NewComment, Profile
 
@@ -162,6 +164,64 @@ class MatchDetail(DetailView):
                                                                                           team_home=match.team_guest,
                                                                                           is_played=True))
 
+        substitutes = {match.team_home: [], match.team_guest: []}
+        team_home_start = match.team_home_start.all()
+        team_guest_start = match.team_guest_start.all()
+        print(match.match_substitutions.values('team').annotate(subs_count=Count('team')))
+        for substitution in match.match_substitutions.all():
+            team = substitution.team
+            player_in = substitution.player_in
+            if player_in not in team_home_start and player_in not in team_guest_start:
+                substitutes[team].append(player_in)
+        context['team_home_substitutes'] = substitutes[match.team_home]
+        context['team_guest_substitutes'] = substitutes[match.team_guest]
+
+        goals = match.match_goal.values('author').annotate(goals=Count('author')).order_by('author')
+        goals_by_player = {d['author']: d['goals'] for d in goals}
+        print(goals_by_player)
+        context['goals_by_player'] = goals_by_player
+
+        assists = \
+            (match.match_goal
+             .exclude(assistent=None)
+             .values('assistent')
+             .annotate(assists=Count('assistent'))
+             .order_by('assistent'))
+        assists_by_player = {d['assistent']: d['assists'] for d in assists}
+        print(assists_by_player)
+        context['assists_by_player'] = assists_by_player
+
+        clean_sheets = \
+            (match.match_event
+                .filter(event=OtherEvents.CLEAN_SHIT)
+                .values('author')
+                .annotate(cs=Count('author'))
+                .order_by('author'))
+        clean_sheets_by_player = {d['author']: d['cs'] for d in clean_sheets}
+        print(clean_sheets_by_player)
+        context['clean_sheets_by_player'] = clean_sheets_by_player
+
+        time_played = {}
+        substitutions = match.match_substitutions.all()
+        full_match_time = time(minute=16, second=0)
+        start_players = match.team_home_start.all() | match.team_guest_start.all()
+        for player in start_players:
+            was_substituted = False
+            for substitution in substitutions:
+                if substitution.player_out == player:
+                    was_substituted = True
+                    time_played[player.id] = time(minute=substitution.time_min, second=substitution.time_sec)
+                    break
+            if not was_substituted:
+                time_played[player.id] = full_match_time
+
+        for substitution in substitutions:
+            delta = datetime.combine(datetime.today(), time(minute=16, second=0)) - \
+                    datetime.combine(datetime.today(), time(minute=substitution.time_min, second=substitution.time_sec))
+            time_played[substitution.player_in.id] = (datetime.min + delta).time()
+        time_played_by_player = {p: t.strftime('%M:%S') for (p, t) in time_played.items()}
+        context['time_played_by_player'] = time_played_by_player
+
         if all_matches_between.count() == 0:
             context['no_history'] = True
             return context
@@ -202,8 +262,6 @@ class MatchDetail(DetailView):
         win_home_percentage = round(100 * win_home / all_matches_between.count())
         draws_percentage = round(100 * draws / all_matches_between.count())
         win_guest_percentage = 100 - win_home_percentage - draws_percentage
-        print(win_home_percentage, draws_percentage, win_guest_percentage)
-        # print(match.team_home, match.team_guest, all_matches_between)
         context['all_matches_between'] = all_matches_between
         context['the_most_score'] = the_most_score
         context['win_home'] = win_home

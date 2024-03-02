@@ -203,7 +203,6 @@ def player_team(player):
                 stat.append(red_cards)
                 d3[leg] = stat
 
-                print(d3, stat)
             if d3:
                 d2[team.to_team] = d3
         if len(seasons) != 0 and d2:
@@ -250,7 +249,6 @@ def rows_player_stat(player, season):
 
             if i.to_team in t.teams.all() and mtch_in_team_trn > 0:
                 k += 1
-    print(k)
     return k
 
 
@@ -704,7 +702,6 @@ def players_in_history(team):
         if (matches_in_team(i.trans_player, team) > 0) and (i.trans_player not in players):
             players.append(i.trans_player)
     a = sorted(players, key=lambda x: matches_in_team(x, team), reverse=True)
-    print(a)
     return a
 
 
@@ -727,3 +724,8 @@ def team_squad_in_season(season_achievements):
         return season_achievements[0].players_raw_list
 
     return ''
+
+
+@register.filter
+def get(d: {}, key):
+    return d[key]

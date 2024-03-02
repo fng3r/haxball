@@ -170,7 +170,7 @@
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
                         <li class="nav-item">
                             <a class="nav-link active" id="squad-tab" data-toggle="tab" href="#start_squad" role="tab"
-                               aria-controls="start_squad-tab" aria-selected="true">Стартовый состав</a>
+                               aria-controls="start_squad-tab" aria-selected="true">Сводка</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" id="detail-tab" data-toggle="tab" href="#detail_stat" role="tab"
@@ -188,6 +188,7 @@
                 <div class="tab-pane fade show active" id="start_squad" role="tabpanel"
                      aria-labelledby="start_squad-tab">
 
+                    <h5>Стартовые составы</h5>
                     <div class="row">
                         <div class="col-sm-1">
 
@@ -209,6 +210,8 @@
                                             {% else %}
                                                 <span class="text-secondary">{{ player }}</span>
                                             {% endif %}
+
+                                            {% include "tournament/include/match_stats_summary.html" %}
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -237,6 +240,8 @@
                                             {% else %}
                                                 <span class="text-secondary">{{ player }}</span>
                                             {% endif %}
+
+                                            {% include "tournament/include/match_stats_summary.html" %}
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -244,7 +249,69 @@
                             </table>
 
                         </div>
+
                     </div>
+                    {% if team_home_substitutes|length > 0 or team_guest_substitutes|length > 0 %}
+                        <h5>Замены</h5>
+                        <div class="row">
+                            <div class="col-sm-1">
+
+                            </div>
+                            <div class="col-sm-4">
+                                <table class="table table-borderless ml-4">
+                                    <tbody>
+                                    {% for player in team_home_substitutes %}
+                                        <tr>
+                                            <td class="p-1" style="width: 40px">
+                                                <img src="{{ player.player_nation.flag.url }}" width="24" height="24"
+                                                     title="{{ player.player_nation.country }}">
+                                            </td>
+                                            <td class="text-left pl-0 font-weight-bold">
+                                                {% if player.name %}
+                                                    <a class="text-dark"
+                                                       href="{{ player.name.user_profile.get_absolute_url }}">{{ player }}</a>
+                                                {% else %}
+                                                    <span class="text-secondary">{{ player }}</span>
+                                                {% endif %}
+
+                                                {% include "tournament/include/match_stats_summary.html" %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-sm-3">
+
+                            </div>
+                            <div class="col-sm-4">
+                                <table class="table table-borderless">
+                                    <tbody>
+                                    {% for player in team_guest_substitutes %}
+                                        <tr>
+                                            <td class="p-1" style="width: 40px">
+
+                                                <img src="{{ player.player_nation.flag.url }}" width="24" height="24"
+                                                     title="{{ player.player_nation.country }}">
+
+                                            </td>
+                                            <td class="text-left pl-0 font-weight-bold">
+                                                {% if player.name %}
+                                                    <a class="text-dark"
+                                                       href="{{ player.name.user_profile.get_absolute_url }}">{{ player }}</a>
+                                                {% else %}
+                                                    <span class="text-secondary">{{ player }}</span>
+                                                {% endif %}
+
+                                                {% include "tournament/include/match_stats_summary.html" %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    {% endif %}
                 </div>
                 <div class="tab-pane fade" id="detail_stat" role="tabpanel" aria-labelledby="detail_stat-tab">
                     {% for goal in match|goals_sorted %}
@@ -294,7 +361,7 @@
 
                             </div>
                             <div class="col-2">
-                                <h6>{{ goal.time_min|add:1 }}'</h6>
+                                <h6>{{ goal.time_min }}:{{goal.time_sec}}</h6>
                             </div>
                             <div class="col-5">
                                 {% if match.team_guest == goal.team and goal.event != 'OG' %}
