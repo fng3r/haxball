@@ -1,12 +1,13 @@
 from datetime import date, datetime
 
 from django import template
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Q
 from django.utils import timezone
 from online_users.models import OnlineUserActivity
 
-from ..models import Post, NewComment
+from ..models import Post, NewComment, Subscription
 from tournament.models import Team, League
 from haxball_site import settings
 
@@ -205,10 +206,31 @@ def user_in(objects, user):
     return False
 
 
+@register.filter
+def can_edit_profile_bg(user: User):
+    if user.is_superuser:
+        return True
+
+    subscriptions = Subscription.objects.by_user(user).active().order_by('tier')
+    return subscriptions.count() > 0
+  
+
+@register.filter
+def usernames_list(likes):
+    return ', '.join(map(lambda like: like.user.username, likes))
+
+
+@register.filter
+def can_view_likes_details(comment, user):
+    if user.is_superuser:
+        return True
+
+    subscriptions = Subscription.objects.by_user(user).active().order_by('tier')
+    return comment.author == user and subscriptions.count() > 0
+
+
 @register.inclusion_tag('core/include/teams_in_navbar.html')
 def teams_in_navbar():
-    # l = League.objects.filter(championship__is_active=True, is_cup=False).order_by('priority')
-    # return {'leagues': l}
     all_teams = Team.objects.all().order_by('title')
     teams = []
     for t in all_teams:

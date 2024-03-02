@@ -286,13 +286,29 @@ class IPAdress(models.Model):
     update = models.DateTimeField('Последний заход', default=timezone.now)
     suspicious = models.BooleanField('Подозрительный', default=False)
 
+    def __str__(self):
+        return '({}, {})'.format(self.name, self.ip)
+
     class Meta:
         verbose_name = 'IP-Адрес'
         verbose_name_plural = 'IP-Адреса'
 
-    # Модель для профиля пользователя
+
+class UserActivity(models.Model):
+    user = models.ForeignKey(User, verbose_name='Пользователь', on_delete=models.CASCADE)
+    ip = models.GenericIPAddressField('IP-адрес')
+    user_agent = models.CharField(max_length=200, verbose_name='User-Agent')
+    id_token = models.CharField(max_length=32, verbose_name='IdToken')
+    first_seen = models.DateTimeField('Первый заход', auto_now_add=True)
+    last_seen = models.DateTimeField('Последний заход', auto_now_add=True)
+    has_duplicates = models.BooleanField('Есть дубликаты', default=False)
+
+    class Meta:
+        verbose_name = 'Пользовательская активность'
+        verbose_name_plural = 'Пользовательская активность'
 
 
+# Модель для профиля пользователя
 class Profile(models.Model):
     name = models.OneToOneField(User, verbose_name='Пользователь', on_delete=models.CASCADE,
                                 related_name='user_profile')
@@ -311,7 +327,6 @@ class Profile(models.Model):
     commentable = models.BooleanField("Комментируемый профиль", default=True)
     can_vote = models.BooleanField('Может голосовать', default=True)
     can_comment = models.BooleanField('Может комментировать', default=True)
-
 
     @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):
@@ -343,3 +358,40 @@ class UserIcon(models.Model):
     class Meta:
         verbose_name = 'Иконка'
         verbose_name_plural = 'Иконки'
+
+
+class SubscriptionQuerySet(models.QuerySet):
+    def by_user(self, user):
+        return self.filter(user=user)
+
+    def active(self):
+        now = timezone.now()
+        return self.filter(disabled=False, starts_at__lte=now, expires_at__gte=now)
+
+
+class Subscription(models.Model):
+    TIER_1 = 1
+    TIER_2 = 2
+
+    TIERS = (
+        (TIER_1, 'Tier 1'),
+        (TIER_2, 'Tier 2')
+    )
+
+    user = models.ForeignKey(User, verbose_name='Пользователь', related_name='subscriptions',
+                             on_delete=models.SET_NULL, null=True)
+    starts_at = models.DateTimeField('Дата начала', default=timezone.now())
+    expires_at = models.DateTimeField('Дата окончания')
+    tier = models.PositiveSmallIntegerField('Тир подписки', choices=TIERS, default=TIER_1)
+    disabled = models.BooleanField('Отключена', default=False)
+
+    objects = SubscriptionQuerySet.as_manager()
+
+    def is_active(self):
+        now = timezone.now()
+        return not self.disabled and self.starts_at <= now <= self.expires_at
+
+    class Meta:
+        ordering = ['-starts_at']
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
