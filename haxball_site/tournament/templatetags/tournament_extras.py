@@ -1,3 +1,5 @@
+import datetime
+
 from django import template
 from django.db.models import Q, Count
 from django.utils import timezone
@@ -256,17 +258,25 @@ def rows_player_stat(player, season):
 
 
 @register.filter
-def goals_sorted(match):
+def events_sorted(match: Match):
     events = match.match_event.all()
     substit = match.match_substitutions.all()
-    goals = list(match.match_goal.all())
+    all_events = list(match.match_goal.all())
     for e in events:
-        goals.append(e)
+        all_events.append(e)
     for s in substit:
-        goals.append(s)
-    g1 = sorted(goals, key=lambda time: time.time_sec)
-    g2 = sorted(g1, key=lambda time: time.time_min)
-    return g2
+        all_events.append(s)
+
+    sorted_events = sorted(all_events, key=lambda event: datetime.time(minute=event.time_min, second=event.time_sec))
+    events_by_time = {'first_time': [], 'second_time': [], 'extra_time': []}
+    for event in sorted_events:
+        if event.time_min < 8:
+            events_by_time['first_time'].append(event)
+        elif event.time_min < 16 or event.time_min == 16 and event.time_sec == 0:
+            events_by_time['second_time'].append(event)
+        else:
+            events_by_time['extra_time'].append(event)
+    return events_by_time
 
 
 #   Фильтры для таблички лиги
@@ -729,3 +739,8 @@ def team_squad_in_season(season_achievements):
 @register.filter
 def get(d: {}, key):
     return d[key]
+
+
+@register.filter
+def event_time(event: Goal | Substitution | OtherEvents):
+    return datetime.time(minute=event.time_min, second=event.time_sec).strftime('%M:%S')
