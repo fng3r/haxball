@@ -270,7 +270,7 @@ def events_sorted(match: Match):
     sorted_events = sorted(all_events, key=lambda event: datetime.time(minute=event.time_min, second=event.time_sec))
     events_by_time = {'first_time': [], 'second_time': [], 'extra_time': []}
     for event in sorted_events:
-        if event.time_min < 8:
+        if event.time_min < 8 or event.time_min == 8 and event.time_sec == 0:
             events_by_time['first_time'].append(event)
         elif event.time_min < 16 or event.time_min == 16 and event.time_sec == 0:
             events_by_time['second_time'].append(event)
@@ -742,5 +742,5 @@ def get(d: {}, key):
 
 
 @register.filter
-def event_time(event: Goal | Substitution | OtherEvents):
+def event_time(event):
     return datetime.time(minute=event.time_min, second=event.time_sec).strftime('%M:%S')

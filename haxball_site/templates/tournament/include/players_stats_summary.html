@@ -9,36 +9,49 @@
     <tbody>
     {% for player in players %}
         <tr>
-            <td class="p-1" style="width: 40px">
-                <img src="{{ player.player_nation.flag.url }}" width="24" height="24"
+            <td class="text-left px-0" width="65px">
+                <span style="width: 45px">
+                    {% if player.id in time_played_by_player %}
+                        <span class="player-stats mt-3">({{time_played_by_player|get:player.id}})</span>
+                    {% endif %}
+                </span>
+            </td>
+            <td class="text-left px-1" width="24px">
+                <img class="my-1 mx-1" src="{{ player.player_nation.flag.url }}" width="24" height="24"
                      title="{{ player.player_nation.country }}">
             </td>
             <td class="text-left pl-0 font-weight-bold">
                 {% if player.name %}
-                    <a class="text-dark"
+                    <a class="text-dark mr-1"
                        href="{{ player.name.user_profile.get_absolute_url }}">{{ player }}</a>
                 {% else %}
-                    <span class="text-secondary">{{ player }}</span>
+                    <span class="text-secondary mr-1">{{ player }}</span>
                 {% endif %}
 
                 <span class="player-stats ml-1">
                     {% if player.id in clean_sheets_by_player %}
-                        <span>
-                            {{clean_sheets_by_player|get:player.id}}<img src="{% static 'img/ico/clean_sheet1.png' %}" class="mb-1" height="18" width="18" title="Сухой тайм">
-                        </span>
+                        <div class="player-stats-container">
+                            <img class="player-stats-icon" src="{% static 'img/ico/clean_sheet1.png' %}" title="Сухой тайм">
+                            {% if clean_sheets_by_player|get:player.id > 1 %}
+                                <span class="player-stats-count">x{{clean_sheets_by_player|get:player.id}}</span>
+                            {% endif %}
+                        </div>
                     {% endif %}
                     {% if player.id in goals_by_player %}
-                        <span>
-                            {{goals_by_player|get:player.id}}<img src="{% static 'img/ico/ball_2.png' %}" class="ml-1 mb-1" height="16" width="16" title="Гол">
-                        </span>
+                        <div class="player-stats-container">
+                            <img class="player-stats-icon" src="{% static 'img/ico/ball_2.png' %}" title="Гол">
+                            {% if goals_by_player|get:player.id > 1 %}
+                                <span class="player-stats-count">x{{goals_by_player|get:player.id}}</span>
+                            {% endif %}
+                        </div>
                     {% endif %}
                     {% if player.id in assists_by_player %}
-                        <span>
-                            {{assists_by_player|get:player.id}}<img src="{% static 'img/ico/boot_ass_2.png' %}" class="ml-1 mb-1" height="20" width="20" title="Голевая передачи">
-                        </span>
-                    {% endif %}
-                    {% if player.id in time_played_by_player %}
-                        <span>({{time_played_by_player|get:player.id}})</span>
+                        <div class="player-stats-container">
+                            <img class="player-stats-icon" src="{% static 'img/ico/boot_ass_2.png' %}" title="Голевая передача">
+                            {% if assists_by_player|get:player.id > 1 %}
+                                <span class="player-stats-count">x{{assists_by_player|get:player.id}}</span>
+                            {% endif %}
+                        </div>
                     {% endif %}
                 </span>
             </td>

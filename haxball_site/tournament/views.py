@@ -1,4 +1,5 @@
-from datetime import datetime, time
+from collections import defaultdict
+from datetime import datetime, time, timedelta
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -167,7 +168,6 @@ class MatchDetail(DetailView):
         substitutes = {match.team_home: [], match.team_guest: []}
         team_home_start = match.team_home_start.all()
         team_guest_start = match.team_guest_start.all()
-        print(match.match_substitutions.values('team').annotate(subs_count=Count('team')))
         for substitution in match.match_substitutions.all():
             team = substitution.team
             player_in = substitution.player_in
@@ -178,7 +178,6 @@ class MatchDetail(DetailView):
 
         goals = match.match_goal.values('author').annotate(goals=Count('author')).order_by('author')
         goals_by_player = {d['author']: d['goals'] for d in goals}
-        print(goals_by_player)
         context['goals_by_player'] = goals_by_player
 
         assists = \
@@ -188,7 +187,6 @@ class MatchDetail(DetailView):
              .annotate(assists=Count('assistent'))
              .order_by('assistent'))
         assists_by_player = {d['assistent']: d['assists'] for d in assists}
-        print(assists_by_player)
         context['assists_by_player'] = assists_by_player
 
         clean_sheets = \
@@ -198,28 +196,23 @@ class MatchDetail(DetailView):
                 .annotate(cs=Count('author'))
                 .order_by('author'))
         clean_sheets_by_player = {d['author']: d['cs'] for d in clean_sheets}
-        print(clean_sheets_by_player)
         context['clean_sheets_by_player'] = clean_sheets_by_player
 
-        time_played = {}
+        time_played = defaultdict(int)
         substitutions = match.match_substitutions.all()
-        full_match_time = time(minute=16, second=0)
+        full_match_time = int(timedelta(minutes=16, seconds=0).total_seconds())
         start_players = match.team_home_start.all() | match.team_guest_start.all()
         for player in start_players:
-            was_substituted = False
-            for substitution in substitutions:
-                if substitution.player_out == player:
-                    was_substituted = True
-                    time_played[player.id] = time(minute=substitution.time_min, second=substitution.time_sec)
-                    break
-            if not was_substituted:
-                time_played[player.id] = full_match_time
+            time_played[player.id] = full_match_time
 
         for substitution in substitutions:
-            delta = datetime.combine(datetime.today(), time(minute=16, second=0)) - \
-                    datetime.combine(datetime.today(), time(minute=substitution.time_min, second=substitution.time_sec))
-            time_played[substitution.player_in.id] = (datetime.min + delta).time()
-        time_played_by_player = {p: t.strftime('%M:%S') for (p, t) in time_played.items()}
+            player_in = substitution.player_in.id
+            player_out = substitution.player_out.id
+            time_until_match_end = int(full_match_time - timedelta(minutes=substitution.time_min,
+                                                                   seconds=substitution.time_sec).total_seconds())
+            time_played[player_in] += time_until_match_end
+            time_played[player_out] -= time_until_match_end
+        time_played_by_player = {p: datetime.fromtimestamp(sec).strftime('%M:%S') for (p, sec) in time_played.items()}
         context['time_played_by_player'] = time_played_by_player
 
         if all_matches_between.count() == 0:
