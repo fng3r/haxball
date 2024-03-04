@@ -26,10 +26,10 @@
             {% endfor %}
 
             {% with last_page_number=page.paginator.num_pages %}
-                {% if page.number < last_page_number|add:'-9' %}
+                {% if page.number < last_page_number|add:'-10' %}
                     <li class="page-item"><a class="page-link" href="{{ object.get_absolute_url }}?page={{ page.number|add:10 }}">></a></li>
                 {% endif %}
-                {% if page.number < last_page_number|add:'-10' %}
+                {% if page.number < last_page_number|add:'-9' %}
                     <li class="page-item"><a class="page-link" href="{{ object.get_absolute_url }}?page={{ last_page_number }}">{{ last_page_number }}</a></li>
                 {% endif %}
             {% endwith %}
