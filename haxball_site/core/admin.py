@@ -122,6 +122,34 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(IPAdress)
 class IPAdressAdmin(admin.ModelAdmin):
     list_display = ('ip', 'name', 'created', 'update', 'suspicious')
-    list_filter = ('ip', 'name')
-    search_fields = ('ip',)
+    list_filter = ('ip', 'name', 'suspicious')
+    search_fields = ('ip', 'name__username')
 
+
+@admin.register(UserActivity)
+class UserActivityAdmin(admin.ModelAdmin):
+    list_display = ('user', 'ip', 'id_token', 'user_agent', 'first_seen', 'last_seen', 'has_duplicates')
+    list_filter = ('user', 'id_token', 'user_agent', 'has_duplicates')
+    search_fields = ('user__username', 'ip', 'id_token')
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(Subscription)
+class SubscriptionAdmin(admin.ModelAdmin):
+    list_display = ('user', 'starts_at', 'expires_at', 'tier', 'is_active', 'disabled')
+    list_filter = ('user', 'tier', 'disabled')
+    autocomplete_fields = ('user',)
+    search_fields = ('user__username',)
+
+    def is_active(self, model):
+        return model.is_active()
+    is_active.boolean = True
+    is_active.short_description = 'Активна'

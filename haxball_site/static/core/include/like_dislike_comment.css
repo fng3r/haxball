@@ -1,0 +1,37 @@
+[data-tooltip] {
+  position: relative;
+  cursor: pointer;
+}
+
+[data-tooltip]:before {
+  content: attr(data-tooltip);
+  position: absolute;
+  visibility: hidden;
+  transform:translateX(-50%);
+  bottom: 25px;
+  background-color: white;
+  border-radius: .75em;
+  color: black;
+  text-align: center;
+  transition:0.2s;
+  border: .5px solid black;
+  padding: 0 0.5em;
+  font-size: 14px;
+  min-width: 150px;
+}
+
+[data-tooltip]:after {
+  content: "";
+  position: absolute;
+  visibility: hidden;
+  bottom: 16px;
+  left: -53%;
+  border: 5px solid black;
+  border-color: black transparent transparent transparent;
+  transition:0.2s;
+}
+
+[data-tooltip]:hover:before,
+[data-tooltip]:hover:after {
+  visibility: visible;
+}

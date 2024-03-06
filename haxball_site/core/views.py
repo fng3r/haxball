@@ -14,9 +14,8 @@ from django.views.generic.base import View
 from pytils.translit import slugify
 
 from .forms import EditProfileForm, PostForm, NewCommentForm
-from .models import Post, Profile, LikeDislike, Category, Themes, Comment, NewComment, IPAdress
+from .models import Post, Profile, LikeDislike, Category, Themes, NewComment
 from .templatetags.user_tags import can_edit, exceeds_edit_limit
-from haxball_site import settings
 from tournament.models import Team, Achievements
 
 
@@ -31,28 +30,6 @@ class PostListView(ListView):
         context = super().get_context_data(**kwargs)
         count_imp = Post.objects.filter(category__is_official=True, important=True).count()
         context['count_imp'] = count_imp
-        if self.request.user.is_authenticated:
-            x_forwarded_for = self.request.META.get('HTTP_X_FORWARDED_FOR')
-            if x_forwarded_for:
-                ip_a = x_forwarded_for
-            else:
-                if not settings.DEBUG:
-                    ip_a = self.request.META.get('HTTP_X_REAL_IP')
-                else:
-                    ip_a = self.request.META.get('REMOTE_ADDR')
-
-            try:
-                ipp = IPAdress.objects.get(name=self.request.user, ip=ip_a)
-                ipp.update = timezone.now()
-                ipp.save(update_fields=['update'])
-            except:
-                IPAdress.objects.create(ip=ip_a, name=self.request.user)
-
-            ips = IPAdress.objects.filter(ip=ip_a)
-            if ips.count() > 1:
-                for i in ips:
-                    i.suspicious = True
-                    i.save(update_fields=['suspicious'])
 
         return context
 
@@ -367,6 +344,10 @@ class EditMyProfile(DetailView, View):
         if profile_form.is_valid():
             if 'avatar' in request.FILES:
                 profile.avatar = request.FILES['avatar']
+            if 'background' in request.FILES:
+                profile.background = request.FILES['background']
+            if request.POST.get('bg-removed') == 'on':
+                profile.background = None
             profile_form.save()
         return redirect(profile.get_absolute_url())
 
