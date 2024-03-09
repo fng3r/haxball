@@ -214,7 +214,7 @@ def can_edit_profile_bg(user: User):
 
     subscriptions = Subscription.objects.by_user(user).active().order_by('tier')
     return subscriptions.count() > 0
-  
+
 
 @register.filter
 def usernames_list(likes):
@@ -227,7 +227,7 @@ def can_view_likes_details(comment, user):
         return True
 
     subscriptions = Subscription.objects.by_user(user).active().order_by('tier')
-    return comment.author == user and subscriptions.count() > 0
+    return subscriptions.count() > 0
 
 
 @register.inclusion_tag('core/include/teams_in_navbar.html')
