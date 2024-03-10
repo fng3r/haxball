@@ -10,6 +10,7 @@
 
 {% block styles %}
     <link rel="stylesheet" type="text/css" href="{% static "core/core.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'core/include/popup_likes_styles.css' %}">
 {% endblock %}
 
 
@@ -73,6 +74,8 @@
             </div>
             <div class="col-8 main-col col-xl-8 col-lg-12 col-md-12 col-sm-12 mx-0 order-xl-2 order-md-1 order-sm-1 order-lg-1 px-1">
 
+                <!-- Всплывающее окно просмотра лайков -->
+                {% include 'core/include/popul_like_view.html' %}
 
                 <!-- Всплывающее окно входа на сайт -->
                 {% include 'core/include/login_logout_modal/log_out_modal.html' %}

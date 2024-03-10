@@ -1,0 +1,75 @@
+.popup-content{
+    display: flex;
+    min-height: 350px;
+    min-width: 500px;
+    background: rgb(4%, 11%, 15%, 1);
+}
+
+.popup-tab{
+    width: 20%;
+    min-width: 130px;
+    background: rgb(4%, 11%, 15%, 1);
+    border-right: 1px solid rgb(4%, 11%, 17%, 0.8);
+}
+
+.popup-user-reactions{
+    width: 70%;
+    background: rgb(4%, 11%, 15%, 1);
+    margin-left: 10px;
+}
+
+.popup-tab-like{
+    width: 80px;
+    height: 30px;
+    margin-left: 25px;
+    margin-top: 25px;
+    padding-left: 15px;
+    box-shadow: 0px 0px 5px #00FF00;
+    font-size: 25px;
+    border-radius: 5px;
+    color: #00FF00;
+    cursor: pointer;
+    display: flex;
+}
+
+.popup-tab-dislike{
+    width: 80px;
+    height: 30px;
+    margin-left: 25px;
+    margin-top: 10px;
+    padding-left: 15px;
+    box-shadow: 0px 0px 3px #fbd784;
+    font-size: 25px;
+    color: #BD2130;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+}
+
+.voter-user{
+    display: flex;
+    margin-top: 10px;
+    border-bottom: 0.5px solid rgb(98%, 84%, 52%, 0.3);
+    padding-left: 30px;
+}
+
+.voter-avatar{
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.voter-nickname{
+    font-size: 20px;
+    color: #99abb4;
+    height: 40px;
+    padding-top: 10px;
+}
+
+.vote-dislike{
+    display: none;
+    transition: 0.5s;
+}
+
+.vote-like{
+    transition: 0.5s;
+}

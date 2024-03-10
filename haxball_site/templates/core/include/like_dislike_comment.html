@@ -5,6 +5,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'core/include/like_dislike_comment.css' %}">
 {% endblock %}
 
+
 <ul class="list-group list-group-horizontal-md d-inline-flex">
 {% if user.is_authenticated and user.user_profile.can_vote %}
     <li class="action-like fa fa-thumbs-up {% if comment.votes.likes.all|user_in:user %}text-success{% endif %}"
@@ -29,7 +30,7 @@
         {% endif %}
     </li>
 {% elif user.is_authenticated and not user.user_profile.can_vote %}
-    <li class="action-like fa fa-thumbs-up" onclick="alert('iks запретил вам голосовать!')">
+    <li class="action-like fa fa-thumbs-up" onclick="alert('Вам ограничен доступ к лайкам/дизлайкам!')">
         {% if comment.votes.likes.count > 0 and comment|can_view_likes_details:user %}
             <span data-count="like" data-tooltip="{{comment.votes.likes|usernames_list}}">{{ comment.votes.likes.count }}</span>
         {% else %}
@@ -37,7 +38,7 @@
         {% endif %}
     </li>
 
-    <li class="action-dislike fa fa-thumbs-down" onclick="alert('iks запретил вам голосовать!')">
+    <li class="action-dislike fa fa-thumbs-down" onclick="alert('Вам ограничен доступ к лайкам/дизлайкам!')">
         {% if comment.votes.dislikes.count > 0 and comment|can_view_likes_details:user %}
             <span data-count="dislike" data-tooltip="{{comment.votes.dislikes|usernames_list}}">{{ comment.votes.dislikes.count }}</span>
         {% else %}
@@ -54,4 +55,17 @@
         <span data-count="dislike">{{ comment.votes.dislikes.count }}</span>
     </li>
 {% endif %}
+
+    {% if comment.votes.likes.count > 0 and comment|can_view_likes_details:user %}
+        <li class="like-stats-button fa fa-list" data-toggle="modal" data-target="#popupLikeDislike">
+            <span data-count="like"></span>
+        </li>
+    {% elif comment.votes.dislikes.count > 0 and comment|can_view_likes_details:user %}
+        <li class="like-stats-button fa fa-list" data-toggle="modal" data-target="#popupLikeDislike">
+            <span data-count="like"></span>
+        </li>
+    {% else %}
+
+    {% endif %}
+
 </ul>
