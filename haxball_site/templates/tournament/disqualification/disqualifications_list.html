@@ -1,22 +1,19 @@
 {% extends "core/home.html" %}
 {% load static %}
 {% load tournament_extras %}
-<link rel="stylesheet" type="text/css" href="{% static 'tournament/disqualification/disqualifications_list.css' %}">
 
-<div class=mycontent">
-    asdfjsdlfsjdfljsjlfsljdfljsdljfljsdljfljsdljf
-</div>
+<link rel="stylesheet" type="text/css" href="{% static 'tournament/disqualification/disqualifications_list.css' %}">
 
 {% block title %}Дисквалификации {% endblock %}
 {% block profile_of_user %}
     <div class="card mb-2 mt-2" style="border-radius: 10px">
         <h2 class="text-center my-2">
-            <i class="fa fa-search-plus text-success" aria-hidden="true"></i>Дисквалификации
+            <i class="fa fa-ban text-danger" aria-hidden="true"></i>Дисквалификации
         </h2>
         <div class="container-fluid p-0 mx-0">
             <form method="get">
                 {{ filter.form }}
-                <button style="visibility: none;">Apply filter</button>
+                <button style="visibility: none;">Применить фильтр</button>
             </form>
                             {{ filter.form.render }}
             <div class="table-fix table-responsive">
@@ -25,39 +22,57 @@
                     <tr>
                         <th scope="col">Команда</th>
                         <th scope="col">Игрок</th>
+                        <th scope="col">Матч</th>
                         <th scope="col">Причина дисквалификации</th>
-                        <th scope="col">Длительность дисквалификации</th>
+                        <th scope="col">Распостраняется на</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for disqualification in filter.qs %}
                         <tr>
-                            <th scope="row" class="pl-2 pr-1">
+                            <td scope="row" class="disqualification-row pl-2 pr-1">
                                 <div class="media">
                                     <img src="{{ disqualification.team.logo.url }}" class="align-self-start mr-1"
-                                         alt="{{ disqualification.team.title }}" width="28" style="border-radius: 100%">
+                                         alt="{{ disqualification.team.title }}" width="20" style="border-radius: 100%">
                                     <div class="media-body">
-                                        <h6 class="mt-0"><a
-                                                href="{{ disqualification.team.get_absolute_url }}">{{ disqualification.team.title }}</a>
+                                        <h6 class="mt-0" style="font-size: 13px">
+                                            <a href="{{ disqualification.team.get_absolute_url }}">{{ disqualification.team.title }}</a>
                                         </h6>
                                     </div>
                                 </div>
-                            </th>
-                            <th scope="row" class="pl-2 pr-1">
+                            </td>
+                            <td scope="row" class="disqualification-row pl-2 pr-1">
                                 <div class="media">
                                     <img src="{{ disqualification.player.name.user_profile.avatar.url }}" class="align-self-start mr-1"
-                                         alt="{{ disqualification.player.nickname }}" width="28" style="border-radius: 100%">
+                                         alt="{{ disqualification.player.nickname }}" width="20" height="20" style="border-radius: 100%; background-position: center center; background-repeat: no-repeat;">
                                     <div class="media-body">
-                                        <h6 class="mt-0"><a
-                                                href="{{ disqualification.player.name.user_profile.get_absolute_url }}">{{ disqualification.player }}</a>
+                                        <h6 class="mt-0" style="font-size: 13px">
+                                            <a href="{{ disqualification.player.name.user_profile.get_absolute_url }}">{{ disqualification.player }}</a>
                                         </h6>
                                     </div>
                                 </div>
-                            </th>
-                            <td>
-                                <div style="width: 100%; font-size: 13px; text-align: center;">{{ disqualification.reason }}</div>
                             </td>
-                            <td style="text-align: center;font-size: small">{{ disqualification.duration }}</td>
+                            <td scope="row" class="disqualification-row pl-2 pr-1">
+                                <div class="media">
+                                    <img src="{{ disqualification.match.team_home.logo.url }}" class="align-self-start mr-1"
+                                         alt="{{ disqualification.match.team_home }}" width="20" style="border-radius: 100%">
+                                    <h6 class="mt-0" style="font-size: 13px">
+                                        <a href="{{disqualification.match.get_absolute_url}}">{{disqualification.match.team_home.short_title}}-{{disqualification.match.team_guest.short_title}}</a>
+                                    </h6>
+                                    <img src="{{ disqualification.match.team_guest.logo.url }}" class="ml-1"
+                                         alt="{{ disqualification.match.team_guest }}" width="20" style="border-radius: 100%">
+                                </div>
+                            </td>
+                            <td scope="row" class="disqualification-row">
+                                <div style="width: 100%; font-size: 13px; text-align: left;">{{ disqualification.reason }}</div>
+                            </td>
+                            <td scope="row" class="disqualification-row">
+                                <div style="font-size: 13px">
+                                    {% for tour in disqualification.tours.all %}
+                                        <p>{{ tour }}</p>
+                                    {% endfor %}
+                                </div>
+                            </td>
                         </tr>
                     {% endfor %}
                     </tbody>

@@ -85,8 +85,6 @@ class Team(models.Model):
     color_table = ColorField(default='#FFFFFF', verbose_name='Цвет Таблички')
     owner = models.ForeignKey(User, verbose_name='Владелец', null=True, on_delete=models.SET_NULL,
                               related_name='team_owner')
-    # league = models.ForeignKey(League, verbose_name='Лига в которой играет', null=True, on_delete=models.SET_NULL,
-    #                          related_name='teams_in_league', )
     office_link = models.URLField('Офис', blank=True)
     rating = models.SmallIntegerField('Рейтинг команды', blank=True, null=True)
 
@@ -113,7 +111,7 @@ class League(models.Model):
                                         blank=True)
     slug = models.SlugField(max_length=250)
     created = models.DateTimeField('Создана', auto_now_add=True)
-    teams = models.ManyToManyField(Team, related_name='leagues', verbose_name='Команды в лиге')
+    teams = models.ManyToManyField(Team, related_name='leagues', related_query_name="leagues", verbose_name='Команды в лиге')
     comments = GenericRelation(NewComment, related_query_name='league_comments')
     commentable = models.BooleanField("Комментируемый турнир", default=True)
 
@@ -191,7 +189,7 @@ class TourNumber(models.Model):
     is_actual = models.BooleanField('Актуальный', default=False)
 
     def __str__(self):
-        return '{}'.format(self.number)
+        return '{} тур ({})'.format(self.number, self.league)
 
     class Meta:
         verbose_name = 'Тур'
@@ -237,7 +235,7 @@ class Match(models.Model):
     comment = models.TextField('Комментарий к матчу', max_length=1024, blank=True, null=True)
 
     def __str__(self):
-        return 'Матч {} - {}, {} тур'.format(self.team_home.short_title, self.team_guest.short_title, self.numb_tour)
+        return 'Матч {} - {}, {}'.format(self.team_home.short_title, self.team_guest.short_title, self.numb_tour)
 
     def get_absolute_url(self):
         return reverse('tournament:match_detail', args=[self.id])
@@ -288,7 +286,7 @@ class Goal(models.Model):
         super(Goal, self).delete(*args, **kwargs)
 
     def __str__(self):
-        return 'на {}:{} от {}({}) в {}'.format(self.time_min, self.time_sec, self.author, self.assistent, self.match)
+        return 'на {:02d}:{:02d} от {}({}) в {}'.format(self.time_min, self.time_sec, self.author, self.assistent, self.match)
 
     class Meta:
         verbose_name = 'Гол'
@@ -317,7 +315,7 @@ class Substitution(models.Model):
     time_sec = models.SmallIntegerField('Секунда')
 
     def __str__(self):
-        return 'в {}:{} {} на {}'.format(self.time_min, self.time_sec, self.player_out, self.player_in)
+        return 'в {:02d}:{:02d} {} на {}'.format(self.time_min, self.time_sec, self.player_out, self.player_in)
 
     class Meta:
         verbose_name = 'Замена'
@@ -325,18 +323,23 @@ class Substitution(models.Model):
 
 
 class Disqualification(models.Model):
-    match = models.ForeignKey(Match, verbose_name='Матч', null=False, on_delete=models.CASCADE)
+    match = models.ForeignKey(Match, verbose_name='Матч', related_name="disqualifications", null=False, on_delete=models.CASCADE)
     team = models.ForeignKey(Team, verbose_name='Команда', related_name='disqualifications', null=False,
                              on_delete=models.CASCADE)
     player = ChainedForeignKey(Player, verbose_name='Игрок', chained_field='team', chained_model_field='team',
                                related_name='disqualifications', null=False, on_delete=models.CASCADE)
     reason = models.CharField('Причина дисквалификации', max_length=150, null=True)
-    duration = models.CharField('Длительность дисквалификации', max_length=100, null=False)
-    created = models.DateTimeField('Дата', auto_now_add=True)
+    tours = models.ManyToManyField(TourNumber, verbose_name='Туры', null=False)
+    created = models.DateTimeField('Выдана', auto_now_add=True)
 
     class Meta:
+        ordering = ('-created',)
         verbose_name = 'Дисквалификация'
         verbose_name_plural = 'Дисквалификации'
+
+    def __str__(self):
+        return "{} ({} - {})".format(self.player.nickname, self.match.team_home.short_title,
+                                     self.match.team_guest.short_title)
 
 
 class OtherEvents(models.Model):
@@ -384,7 +387,7 @@ class OtherEvents(models.Model):
         super(OtherEvents, self).delete(*args, **kwargs)
 
     def __str__(self):
-        return '{}:{} {} в {}'.format(self.time_min, self.time_sec, self.event, self.match)
+        return '{:02d}:{:02d} {} в {}'.format(self.time_min, self.time_sec, self.event, self.match)
 
     class Meta:
         verbose_name = 'Событие'

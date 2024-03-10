@@ -225,6 +225,21 @@
                             </div>
                         </div>
                     {% endif %}
+                    {% if match.disqualifications.count > 0 %}
+                        <h5>Дисквалификации</h5>
+                        <div class="row" style="text-align: left">
+                            <div class="col-sm-12">
+                                <ul>
+                                {% for disqualification in match.disqualifications.all %}
+                                    <li>
+                                        {{ disqualification.player.nickname }} ({{ disqualification.player.team }}) дисквалифицирован на {{ disqualification.tours.all|join:", " }}.
+                                        Причина: {{ disqualification.reason }}
+                                    </li>
+                                {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    {% endif %}
                 </div>
                 <div class="tab-pane fade" id="detail_stat" role="tabpanel" aria-labelledby="detail_stat-tab">
                     {% with events_by_time=match|events_sorted %}

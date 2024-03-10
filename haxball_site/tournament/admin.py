@@ -59,6 +59,7 @@ class PlayerInline(admin.StackedInline):
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
     list_display = ('title', 'short_title', 'owner',)
+    search_fields = ('title',)
     inlines = [PlayerInline]
 
 
@@ -76,6 +77,21 @@ class LeagueAdmin(admin.ModelAdmin):
 @admin.register(Nation)
 class NationAdmin(admin.ModelAdmin):
     list_display = ('country',)
+
+
+@admin.register(Disqualification)
+class DisqualificationAdmin(admin.ModelAdmin):
+    list_display = ('match', 'team', 'player', 'reason', 'get_tours', 'created')
+    filter_horizontal = ('tours',)
+
+    def get_tours(self, model):
+        return ', '.join(map(lambda t: str(t), model.tours.all()))
+    get_tours.short_description = 'Туры'
+
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name == "tours":
+            kwargs["queryset"] = TourNumber.objects.filter(league__championship__is_active=True).order_by('number')
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
 
 
 class GoalInline(admin.StackedInline):
@@ -113,18 +129,17 @@ class SubstitutionInline(admin.StackedInline):
 class DisqualificationInline(admin.StackedInline):
     model = Disqualification
     extra = 1
+    filter_horizontal = ('tours',)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        resolved = resolve(request.path_info)
-        not_found = False
-        try:
-            match = self.parent_model.objects.get(id=resolved.kwargs['object_id'])
-        except:
-            not_found = True
-        if db_field.name == "team" and not not_found:
-            kwargs["queryset"] = Team.objects.filter(Q(home_matches=match) | Q(guest_matches=match)).distinct()
+        if db_field.name == "team":
+            kwargs["queryset"] = Team.objects.filter(leagues__championship__is_active=True).distinct().order_by('title')
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name == "tours":
+            kwargs["queryset"] = TourNumber.objects.filter(league__championship__is_active=True).order_by('number')
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
 
 class EventInline(admin.StackedInline):
     model = OtherEvents
@@ -138,7 +153,7 @@ class EventInline(admin.StackedInline):
         except:
             not_found = True
         if db_field.name == "team" and not not_found:
-            kwargs["queryset"] = Team.objects.filter(Q(home_matches=match) | Q(guest_matches=match)).distinct()
+            kwargs["queryset"] = Team.objects.filter(leagues__championship__is_active=True).distinct().order_by('title')
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
