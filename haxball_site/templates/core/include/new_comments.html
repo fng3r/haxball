@@ -60,6 +60,9 @@
             <div class="comment-widgets m-b-20">
                 {% for comment in comments %}
 
+                    <!-- Всплывающее окно просмотра лайков -->
+                    {% include 'core/include/popup_like_view.html' with comment=comment %}
+
                     <!-- Непосредственно комментарий -->
                     {% if comment.is_parent %}
                         <div class="d-flex flex-row comment-row" id="r{{ comment.id }}">
@@ -230,6 +233,9 @@
                             <div class="d-flex flex-row comment-row" style="padding-left: 100px"
                                  id="r{{ children.id }}">
                                 <div class="p-2">
+
+                                <!-- Всплывающее окно просмотра лайков -->
+                                {% include 'core/include/popup_like_view.html' with comment=children %}
                             <span class="round">
                                 <a href="{{ children.author.user_profile.get_absolute_url }}">
                                     {% thumbnail children.author.user_profile.avatar "50x50" crop="center" as im %}
