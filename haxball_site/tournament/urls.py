@@ -1,12 +1,13 @@
 from django.urls import path
 
 from .views import FreeAgentList, remove_entry, update_entry, TeamDetail, TeamList, LeagueDetail, MatchDetail, \
-    edit_team_profile, halloffame, team_rating
+    edit_team_profile, halloffame, team_rating, PerenosPage
 
 app_name = 'tournament'
 
 urlpatterns = [
     # Зал славы
+    path('perenosy', PerenosPage.as_view(), name='perenos_page'),
     path('hall_of_fame', halloffame, name='hall_of_fame'),
     path('team_rating', team_rating, name='team_rating'),
     path('free_agents/', FreeAgentList.as_view(), name='free_agent'),

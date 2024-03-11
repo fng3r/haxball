@@ -11,6 +11,10 @@ from .models import FreeAgent, Team, Match, League, Player, Substitution, Season
 from core.forms import NewCommentForm
 from core.models import NewComment, Profile
 
+class PerenosPage(ListView):
+    template_name = 'tournament/perenos_page.html'
+    queryset = Team.objects.all().order_by('-title')
+    context_object_name = 'perenos_page'
 
 class FreeAgentList(ListView):
     queryset = FreeAgent.objects.filter(is_active=True).order_by('-created')
