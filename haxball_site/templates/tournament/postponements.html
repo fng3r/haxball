@@ -1,0 +1,158 @@
+{% extends "core/home.html" %}
+{% load static %}
+{% block styles %}
+
+<link rel="stylesheet" type="text/css" href='{% static "tournament/postponements/postponements.css" %}'>
+{% endblock %}
+
+{% block title %}Чемпионат | Переносы          cis-haxball.com {% endblock %}
+
+{% block profile_of_user %}
+<div class="card mb-2 mt-2" style="border-radius: 10px; height: 500px; overflow-y: auto;">
+    <h2 class="text-center my-2"><i class="fa fa-calendar text-success" aria-hidden="true"></i> Переносы</h2>
+    <table class="table table-hover" style="max-width: 100%">
+        <thead class="thead-dark py-2 text-center">
+
+
+            <tr>
+                <th scope="col">Команда</th>
+                <th scope="col">Перенос 1</th>
+                <th scope="col">Перенос 2</th>
+                <th scope="col">Перенос 3</th>
+                <th scope="col">Экстр. 1</th>
+                <th scope="col">Экстр. 2</th>
+                <th scope="col">Экстр. 3</th>
+            </tr>
+        <!-- фор все команды чемпионата -->
+
+        </thead>
+
+        <tbody>
+            <tr>
+                <th scope="col" style="text-align: center; font-size: 17px; vertical-align: center;"><img src="https://www.cis-haxball.com/media/team_logos/omp-new-2s.png" alt="..." style="margin-right: 5px;" width="30" height="30">One more pass</th>
+                <!-- if команда.1 перенос юзед -->
+                    <th style="font-size: 12px; text-align: center;" scope="col">ВЛ 1 тур <br> 11.03-17.03 <br> <a href="#"><img src="https://www.cis-haxball.com/media/team_logos/omp-new-2s.png"
+                                                                           alt="..." width="16" style="vertical-align: bottom;" height="16"> OMP - GL
+                        <img src="http://127.0.0.1:8000/media/team_logos/greenland_1s.png" style="vertical-align: bottom;" alt="..." width="16" height="16"> </a>  </th>
+                <!-- endif -->
+
+                <!-- Код из брони хоста
+                                                        <span class="font-weight-bold small">
+                                                            |
+                                                            <a href="{{ res.match.get_absolute_url }}">
+                                                            <img src="{{ res.match.team_home.logo.url }}" width="16px"
+                                                                 height="16px" alt="{{ res.match.team_home.title }}"
+                                                                 style="vertical-align: bottom;">
+                                                            {{ res.match.team_home.short_title }} - {{ res.match.team_guest.short_title }}
+                                                            <img src="{{ res.match.team_guest.logo.url }}"
+                                                                 alt="{{ res.match.team_guest.title }}" width="16px"
+                                                                 height="16px" style="vertical-align: bottom;">
+                                                            </a>
+                                                        </span>
+
+                                                    -->
+
+                <th style="font-size: 12px; text-align: center;" scope="col">ВЛ 1 тур <br> 11.03-17.03 <br> <a href="#"><img src="https://www.cis-haxball.com/media/team_logos/omp-new-2s.png"
+                                                                                                alt="..." width="16" style="vertical-align: bottom;" height="16"> OMP - GL
+                    <img src="http://www.cis-haxball.com/media/team_logos/greenland_1s.png" style="vertical-align: bottom;" alt="..." width="16" height="16"> </a>  </th>
+                <th style="font-size: 12px; text-align: center;" scope="col">ВЛ 1 тур <br> 11.03-17.03 <br> <a href="#"><img src="https://www.cis-haxball.com/media/team_logos/omp-new-2s.png"
+                                                                                                alt="..." width="16" style="vertical-align: bottom;" height="16"> OMP - GL
+                    <img src="http://www.cis-haxball.com/media/team_logos/greenland_1s.png" style="vertical-align: bottom;" alt="..." width="16" height="16"> </a>  </th>
+                <th style="font-size: 12px; text-align: center;" scope="col">ВЛ 1 тур <br> 11.03-17.03 <br> <a href="#"><img src="https://www.cis-haxball.com/media/team_logos/omp-new-2s.png"
+                                                                                                alt="..." width="16" style="vertical-align: bottom;" height="16"> OMP - GL
+                    <img src="http://www.cis-haxball.com/media/team_logos/greenland_1s.png" style="vertical-align: bottom;" alt="..." width="16" height="16"> </a>  </th>
+                <th style="font-size: 12px; text-align: center;" scope="col">ВЛ 1 тур <br> 11.03-17.03 <br> <a href="#"><img src="https://www.cis-haxball.com/media/team_logos/omp-new-2s.png"
+                                                                                                alt="..." width="16" style="vertical-align: bottom;" height="16"> OMP - GL
+                    <img src="http://www.cis-haxball.com/media/team_logos/greenland_1s.png" style="vertical-align: bottom;" alt="..." width="16" height="16"> </a>  </th>
+                <th style="font-size: 12px; text-align: center;" scope="col">ВЛ 1 тур <br> 11.03-17.03 <br> <a href="#"><img src="https://www.cis-haxball.com/media/team_logos/omp-new-2s.png"
+                                                                                                alt="..." width="16" style="vertical-align: bottom;" height="16"> OMP - GL
+                    <img src="http://www.cis-haxball.com/media/team_logos/greenland_1s.png" style="vertical-align: bottom;" alt="..." width="16" height="16"> </a>  </th>
+            </tr>
+            <tr>
+                <th scope="col" style="text-align: center; font-size: 17px; vertical-align: center;"><img src="http://www.cis-haxball.com/media/team_logos/greenland_1s.png" alt="..." style="margin-right: 5px;" width="30" height="30">GreenLand</th>
+                <th style="font-size: 12px; text-align: center;" scope="col">ВЛ 1 тур <br> 11.03-17.03 <br> <a href="#"><img src="https://www.cis-haxball.com/media/team_logos/omp-new-2s.png"
+                                                                                                                     alt="..." width="16" style="vertical-align: bottom;" height="16"> OMP - GL
+                    <img src="http://www.cis-haxball.com/media/team_logos/greenland_1s.png" style="vertical-align: bottom;" alt="..." width="16" height="16"> </a>  </th>
+                <th style="font-size: 12px; text-align: center;" scope="col">ВЛ 1 тур <br> 11.03-17.03 <br> <a href="#"><img src="https://www.cis-haxball.com/media/team_logos/omp-new-2s.png"
+                                                                                                                     alt="..." width="16" style="vertical-align: bottom;" height="16"> OMP - GL
+                    <img src="http://www.cis-haxball.com/media/team_logos/greenland_1s.png" style="vertical-align: bottom;" alt="..." width="16" height="16"> </a>  </th>
+                <th style="font-size: 12px; text-align: center;" scope="col">ВЛ 1 тур <br> 11.03-17.03 <br> <a href="#"><img src="https://www.cis-haxball.com/media/team_logos/omp-new-2s.png"
+                                                                                                                     alt="..." width="16" style="vertical-align: bottom;" height="16"> OMP - GL
+                    <img src="http://www.cis-haxball.com/media/team_logos/greenland_1s.png" style="vertical-align: bottom;" alt="..." width="16" height="16"> </a>  </th>
+                <th style="font-size: 12px; text-align: center;" scope="col">ВЛ 1 тур <br> 11.03-17.03 <br> <a href="#"><img src="https://www.cis-haxball.com/media/team_logos/omp-new-2s.png"
+                                                                                                                     alt="..." width="16" style="vertical-align: bottom;" height="16"> OMP - GL
+                    <img src="http://www.cis-haxball.com/media/team_logos/greenland_1s.png" style="vertical-align: bottom;" alt="..." width="16" height="16"> </a>  </th>
+                <th style="font-size: 12px; text-align: center;" scope="col">ВЛ 1 тур <br> 11.03-17.03 <br> <a href="#"><img src="https://www.cis-haxball.com/media/team_logos/omp-new-2s.png"
+                                                                                                                     alt="..." width="16" style="vertical-align: bottom;" height="16"> OMP - GL
+                    <img src="http://www.cis-haxball.com/media/team_logos/greenland_1s.png" style="vertical-align: bottom;" alt="..." width="16" height="16"> </a>  </th>
+                <th style="font-size: 12px; text-align: center;" scope="col">ВЛ 1 тур <br> 11.03-17.03 <br> <a href="#"><img src="https://www.cis-haxball.com/media/team_logos/omp-new-2s.png"
+                                                                                                                     alt="..." width="16" style="vertical-align: bottom;" height="16"> OMP - GL
+                    <img src="http://www.cis-haxball.com/media/team_logos/greenland_1s.png" style="vertical-align: bottom;" alt="..." width="16" height="16"> </a>  </th>
+            </tr>
+
+        </tbody>
+
+        <!-- ендфор -->
+    </table>
+</div>
+
+<!-- if юзер капитан/заместитель команды -->
+<div class="card bg-c-lite-unknown mb-2" style="border-radius: 30px; height: 200px; overflow-y: auto;">
+    <!-- if есть несыгранные матчи -->
+    <!-- фор несыгранные командой матчи ( в теории цикл должен быть в брони хоста )-->
+    <form action="#" method="post">
+        <table class="table table-hover" style="max-width: 90%; margin: 10px auto; background: #ffffff">
+            <thead class="thead-dark py-2 text-center">
+
+                <tr>
+                    <th width="5%" scope="col">Лига</th>
+                    <th width="5%" scope="col">Тур</th>
+                    <th scope="col">Хозяева</th>
+                    <th scope="col">Гости</th>
+                    <th scope="col">Статус</th>
+                    <th scope="col">Тип переноса</th>
+                    <th scope="col">Подтверждение</th>
+                </tr>
+
+
+            </thead>
+
+            <tbody style="text-align: center;">
+                <tr>
+                    <th width="5%" scope="col">ВЛ</th>
+                    <th width="5%" scope="col">1</th>
+                    <th scope="col" style="font-size: 15px"><img src="https://www.cis-haxball.com/media/team_logos/omp-new-2s.png" alt="..." width="25" height="25"> One more pass</th>
+                    <th scope="col" style="font-size: 15px"><img src="http://www.cis-haxball.com/media/team_logos/greenland_1s.png" alt="..." width="25" height="25"> GreenLand</th>
+                    <th scope="col">
+                        <select class="postponements-select" name="team">
+                            <option value="none">Нет переноса</option>
+                            <option value="home">Перенос на хозяев</option>
+                            <option value="guests">Перенос на гостей</option>
+                            <option value="allTeams">Обоюдный перенос</option>
+                        </select>
+                    </th>
+                    <th scope="col">
+                        <select class="postponements-select" name="type">
+                            <option value="usual">Обычный перенос</option>
+                            <option value="extra">Экстренный перенос</option>
+                        </select>
+                    </th>
+                    <th>
+                        <button class="postponements-button" type="submit">Перенос</button>
+                    </th>
+                </tr>
+
+
+            </tbody>
+
+        </table>
+        <!-- ендфор -->
+    </form>
+    <!-- else -->
+
+    <!-- ендиф -->
+
+</div>
+<!-- endif -->
+{% endblock %}
+

@@ -12,6 +12,12 @@ from core.forms import NewCommentForm
 from core.models import NewComment, Profile
 
 
+class PostponementsView(ListView):
+    template_name = 'tournament/postponements.html'
+    queryset = Team.objects.all().order_by('-title')
+    context_object_name = 'postponements'
+
+
 class FreeAgentList(ListView):
     queryset = FreeAgent.objects.filter(is_active=True).order_by('-created')
     context_object_name = 'agents'
