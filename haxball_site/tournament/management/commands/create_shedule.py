@@ -35,11 +35,7 @@ class Command(BaseCommand):
         teams = list(league.teams.all())
         half = len(teams) // 2
         n = len(teams)
-        date_start = datetime.date(2024, 3, 13)
-        # cr_date = date_start
         time_delta = datetime.timedelta(days=2)
-        #
-        # date_cr_2 = datetime.date(2024, 4, 28)
 
         print('         Команды участницы:')
         for team in teams:
@@ -50,23 +46,30 @@ class Command(BaseCommand):
         for team in teams:
             print('     {}'.format(team.title))
 
-        for i in range(1, len(teams)):
+        for i in range(1, n):
             tour_number = i
             cr_date = self.tour_dates[i]
             tour = TourNumber.objects.create(number=tour_number, league=league, date_from=cr_date, date_to=cr_date + time_delta)
-            reverse_tour_number = i + n - 1
+            reverse_tour_number = n + i - 1
             date_cr_2 = self.tour_dates[reverse_tour_number]
             tour_reverse = TourNumber.objects.create(number=reverse_tour_number, league=league, date_from=date_cr_2,
                                                      date_to=date_cr_2 + time_delta)
             print('                 Тур {}'.format(tour))
             for j in range(half):
-                match = Match.objects.create(team_home=teams[j], team_guest=teams[n - 1 - j], numb_tour=tour,
+                team_home = teams[j]
+                team_guest = teams[n - j - 1]
+                # switch home/away for fixed (first) team
+                if j == 0 and i % 2 == 1:
+                    (team_home, team_guest) = (team_guest, team_home)
+                match = Match.objects.create(team_home=team_home, team_guest=team_guest, numb_tour=tour,
                                              league=league)
-                match_reverse = Match.objects.create(team_guest=teams[j], team_home=teams[n - 1 - j],
-                                                     numb_tour=tour_reverse,
+                match_reverse = Match.objects.create(team_guest=team_home, team_home=team_guest, numb_tour=tour_reverse,
                                                      league=league)
                 print('          {}  -  {}'.format(match.team_home.title, match.team_guest.title))
-            teams.insert(1, teams.pop())
+            # rotate teams n // 2 times
+            for j in range(half):
+                teams.insert(1, teams.pop())
+            print(teams)
 
         print()
         print('     Генерация расписания завершена')
