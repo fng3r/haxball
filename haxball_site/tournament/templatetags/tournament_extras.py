@@ -754,7 +754,3 @@ def card_name(card: OtherEvents):
         return 'красная карточка'
     return ''
 
-
-@register.filter
-def tours_verbose_names(tours):
-    return map(lambda tour: tour.verbose_name(), tours)

@@ -188,11 +188,8 @@ class TourNumber(models.Model):
     league = models.ForeignKey(League, verbose_name='В какой лиге', related_name='tours', on_delete=models.CASCADE)
     is_actual = models.BooleanField('Актуальный', default=False)
 
-    def verbose_name(self):
-        return '{} тур ({})'.format(self.number, self.league.title)
-
     def __str__(self):
-        return '{} тур'.format(self.number)
+        return '{} тур ({})'.format(self.number, self.league.title)
 
     class Meta:
         verbose_name = 'Тур'
@@ -238,7 +235,7 @@ class Match(models.Model):
     comment = models.TextField('Комментарий к матчу', max_length=1024, blank=True, null=True)
 
     def __str__(self):
-        return 'Матч {} - {}, {}'.format(self.team_home.short_title, self.team_guest.short_title, self.numb_tour)
+        return 'Матч {} - {}, {} тур'.format(self.team_home.short_title, self.team_guest.short_title, self.numb_tour.number)
 
     def cards(self):
         return self.match_event.filter(Q(event=OtherEvents.YELLOW_CARD) | Q(event=OtherEvents.RED_CARD)).order_by('team')
@@ -375,7 +372,7 @@ class OtherEvents(models.Model):
     event = models.CharField(max_length=3, choices=EVENT, default=CLEAN_SHIT, verbose_name='Тип события')
     card_reason = models.CharField(
         max_length=300, verbose_name="За что выдана карточка", null=True, blank=True,
-        help_text='Только для карточек. Указывать в формате "за нарушение п. 1.2.3 Регламента..." '
+        help_text='Только для карточек. Указывать в формате "за нарушение гл. 1 ст. 2 ч. 3 Регламента..." '
                   'для корректного отображения на странице матча')
 
     def save(self, *args, **kwargs):

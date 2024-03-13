@@ -8,7 +8,7 @@
                 <select id="match" class="form-control" name="match">
                     {% for m in matches %}
                         <option {% if forloop.first %}selected{% endif %} value="{{ m.id }}">
-                            {{ m.numb_tour }}, {{ m.team_home.title }}-{{ m.team_guest.title }}
+                            {{ m.numb_tour.number }} тур, {{ m.team_home.title }}-{{ m.team_guest.title }}
 
                         </option>
                     {% endfor %}

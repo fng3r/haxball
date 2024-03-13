@@ -249,7 +249,7 @@
                                 <ul>
                                 {% for disqualification in match.disqualifications.all %}
                                     <li>
-                                        {{ disqualification.player.nickname }} ({{ disqualification.player.team }}) дисквалифицирован на {{ disqualification.tours.all|tours_verbose_names|join:", " }}.
+                                        {{ disqualification.player.nickname }} ({{ disqualification.player.team }}) дисквалифицирован на {{ disqualification.tours.all|join:", " }}.
                                         Причина: {{ disqualification.reason }}
                                     </li>
                                 {% endfor %}
