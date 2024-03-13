@@ -160,7 +160,7 @@ def player_team(player):
     for s in seasons:
         d2 = {}
         trans_teams = list(
-            PlayerTransfer.objects.filter(~Q(to_team=None), season_join=s, trans_player=player.user_player).distinct('to_team'))
+            PlayerTransfer.objects.filter(~Q(to_team=None), season_join=s, trans_player=player.user_player).displadistinct('to_team'))
         for team in trans_teams:
             d3 = {}
             leagues = list(League.objects.filter(championship=s, teams=team.to_team).order_by('id'))
@@ -744,3 +744,12 @@ def get(d: {}, key):
 @register.filter
 def event_time(event):
     return datetime.time(minute=event.time_min, second=event.time_sec).strftime('%M:%S')
+
+
+@register.filter
+def card_name(card: OtherEvents):
+    if card.event == OtherEvents.YELLOW_CARD:
+        return 'желтая карточка'
+    if card.event == OtherEvents.RED_CARD:
+        return 'красная карточка'
+    return ''

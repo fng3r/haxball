@@ -237,6 +237,9 @@ class Match(models.Model):
     def __str__(self):
         return 'Матч {} - {}, {}'.format(self.team_home.short_title, self.team_guest.short_title, self.numb_tour)
 
+    def cards(self):
+        return self.match_event.filter(Q(event=OtherEvents.YELLOW_CARD) | Q(event=OtherEvents.RED_CARD)).order_by('team')
+
     def get_absolute_url(self):
         return reverse('tournament:match_detail', args=[self.id])
 
@@ -367,6 +370,10 @@ class OtherEvents(models.Model):
     ]
 
     event = models.CharField(max_length=3, choices=EVENT, default=CLEAN_SHIT, verbose_name='Тип события')
+    card_reason = models.CharField(
+        max_length=300, verbose_name="За что выдана карточка", null=True, blank=True,
+        help_text='Только для карточек. Указывать в формате "за нарушение п. 1.2.3 Регламента..." '
+                  'для корректного отображения на странице матча')
 
     def save(self, *args, **kwargs):
         if self.match.team_home == self.team and self.event == 'OG':
