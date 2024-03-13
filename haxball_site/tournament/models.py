@@ -188,8 +188,11 @@ class TourNumber(models.Model):
     league = models.ForeignKey(League, verbose_name='В какой лиге', related_name='tours', on_delete=models.CASCADE)
     is_actual = models.BooleanField('Актуальный', default=False)
 
+    def verbose_name(self):
+        return '{} тур ({})'.format(self.number, self.league.title)
+
     def __str__(self):
-        return '{} тур ({})'.format(self.number, self.league)
+        return '{} тур'.format(self.number)
 
     class Meta:
         verbose_name = 'Тур'

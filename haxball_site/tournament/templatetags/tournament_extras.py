@@ -753,3 +753,8 @@ def card_name(card: OtherEvents):
     if card.event == OtherEvents.RED_CARD:
         return 'красная карточка'
     return ''
+
+
+@register.filter
+def tours_verbose_names(tours):
+    return map(lambda tour: tour.verbose_name(), tours)

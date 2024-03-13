@@ -69,7 +69,7 @@
                             <td scope="row" class="disqualification-row">
                                 <div style="font-size: 13px">
                                     {% for tour in disqualification.tours.all %}
-                                        <p>{{ tour }}</p>
+                                        <p>{{ tour.verbose_name }}</p>
                                     {% endfor %}
                                 </div>
                             </td>
