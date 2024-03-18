@@ -1,0 +1,54 @@
+{% load static %}
+{% block styles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'core/include/popup_likes_styles.css' %}">
+{% endblock %}
+
+
+<div class="modal fade" id="popupLikeDislike-{{comment.id}}">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="popup-content">
+                <div class="popup-tab">
+                    <div class="popup-tab-like" id="like{{comment.id}}">
+                        <div class="fa fa-thumbs-up"  style="padding-top: 2px"></div>
+                        <div class="popup-tab-count">
+                            {{ comment.votes.likes.count }}</div>
+                    </div>
+                    <div class="popup-tab-dislike" id="dislike{{comment.id}}">
+                        <div class="fa fa-thumbs-down"  style="padding-top: 2px: "></div>
+                        <div class=popup-tab-count>
+                            {{ comment.votes.dislikes.count }}</div>
+                    </div>
+                </div>
+                <div class="popup-user-reactions">
+                    <div class="vote-like" id="vote-like{{comment.id}}">
+                        {% for like in comment.votes.likes %}
+
+                                <div class="voter-user">
+                                    <img class="voter-avatar" src="{{ like.user.user_profile.avatar.url }}" alt="...">
+                                    <p class="voter-nickname">{{like.user.username}}</p>
+                                </div>
+
+                        {% endfor %}
+                    </div>
+
+                    <div class="vote-dislike" id="vote-dislike{{comment.id}}">
+                        {% for dislike in comment.votes.dislikes %}
+
+                            <div class="voter-user">
+                                <img class="voter-avatar" src="{{ like.user.user_profile.avatar.url }}" alt="...">
+                                <p class="voter-nickname">{{dislike.user.username}}</p>
+                            </div>
+
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="{% static 'scripts/LikeViewPopup.js' %}"></script>

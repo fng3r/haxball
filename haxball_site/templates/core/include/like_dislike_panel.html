@@ -15,11 +15,11 @@
     </ul>
 {% elif user.is_authenticated and not user.user_profile.can_vote %}
     <ul class="list-group list-group-horizontal-md d-inline-flex">
-        <li class="action-like fa fa-thumbs-up" onclick="alert('iks запретил вам голосовать!')">
+        <li class="action-like fa fa-thumbs-up" onclick="alert('Вам ограничен доступ к лайкам/дизлайкам!')">
             <span data-count="like">{{ post.votes.likes.count }}</span>
         </li>
 
-        <li class="action-dislike fa fa-thumbs-down" onclick="alert('iks запретил вам голосовать!')">
+        <li class="action-dislike fa fa-thumbs-down" onclick="alert('Вам ограничен доступ к лайкам/дизлайкам!')">
             <span data-count="dislike">{{ post.votes.dislikes.count }}</span>
         </li>
     </ul>
