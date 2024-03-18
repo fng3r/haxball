@@ -214,7 +214,7 @@ def can_edit_profile_bg(user: User):
 
     subscriptions = Subscription.objects.by_user(user).active().order_by('tier')
     return subscriptions.count() > 0
-  
+
 
 @register.filter
 def usernames_list(likes):

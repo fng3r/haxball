@@ -4,15 +4,38 @@ from datetime import datetime, time, timedelta
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Count, F, Q, Sum
+from django_filters import FilterSet, ChoiceFilter, ModelChoiceFilter
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.generic import ListView, DetailView
+from django_filters.filterset import BaseFilterSet
 
 from .forms import FreeAgentForm, EditTeamProfileForm
-from .models import FreeAgent, Team, Match, League, Player, Substitution, Season, Goal, OtherEvents
+from .models import FreeAgent, Team, Match, League, Player, Substitution, Season, OtherEvents, Disqualification
 from core.forms import NewCommentForm
 from core.models import NewComment, Profile
+
+
+class DisqualificationFilter(FilterSet):
+    team = ModelChoiceFilter(queryset=Team.objects.filter(leagues__championship__is_active=True).distinct())
+
+    class Meta:
+        model = Disqualification
+        fields = ['team']
+
+
+class DisqualificationsList(ListView):
+    queryset = Disqualification.objects.filter(match__league__championship__is_active=True).order_by('-created')
+    context_object_name = 'disqualifications'
+    template_name = 'tournament/disqualification/disqualifications_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        print(self.request.GET)
+        context['filter'] = DisqualificationFilter(self.request.GET, queryset=self.queryset)
+
+        return context
 
 
 class FreeAgentList(ListView):

@@ -380,7 +380,7 @@ class Subscription(models.Model):
 
     user = models.ForeignKey(User, verbose_name='Пользователь', related_name='subscriptions',
                              on_delete=models.SET_NULL, null=True)
-    starts_at = models.DateTimeField('Дата начала', default=timezone.now())
+    starts_at = models.DateTimeField('Дата начала', default=timezone.now)
     expires_at = models.DateTimeField('Дата окончания')
     tier = models.PositiveSmallIntegerField('Тир подписки', choices=TIERS, default=TIER_1)
     disabled = models.BooleanField('Отключена', default=False)

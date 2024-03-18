@@ -744,3 +744,13 @@ def get(d: {}, key):
 @register.filter
 def event_time(event):
     return datetime.time(minute=event.time_min, second=event.time_sec).strftime('%M:%S')
+
+
+@register.filter
+def card_name(card: OtherEvents):
+    if card.event == OtherEvents.YELLOW_CARD:
+        return 'желтая карточка'
+    if card.event == OtherEvents.RED_CARD:
+        return 'красная карточка'
+    return ''
+
