@@ -35,18 +35,23 @@ class Command(BaseCommand):
         has_return_matches = False
         league = League.objects.get(priority=4, championship__is_active=True, is_cup=False)
         teams = list(league.teams.all())
+        # add dummy team when number of teams is odd
+        if len(teams) % 2 == 1:
+            teams.append(None)
         half = len(teams) // 2
         n = len(teams)
         time_delta = datetime.timedelta(days=2)
 
         print('         Команды участницы:')
         for team in teams:
-            print('     {}'.format(team.title))
+            if team is not None:
+                print('     {}'.format(team.title))
         print()
         print('     Перемешиваем')
         random.shuffle(teams)
         for team in teams:
-            print('     {}'.format(team.title))
+            if team is not None:
+                print('     {}'.format(team.title))
 
         for i in range(1, n):
             tour_number = i
@@ -62,6 +67,9 @@ class Command(BaseCommand):
             for j in range(half):
                 team_home = teams[j]
                 team_guest = teams[n - j - 1]
+                # skip matches with dummy team
+                if team_home is None or team_guest is None:
+                    continue
                 # switch home/away for fixed (first) team
                 if j == 0 and i % 2 == 1:
                     (team_home, team_guest) = (team_guest, team_home)
