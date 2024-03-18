@@ -1,3 +1,5 @@
+import datetime
+
 from django import template
 from django.db.models import Q, Count
 from django.utils import timezone
@@ -203,7 +205,6 @@ def player_team(player):
                 stat.append(red_cards)
                 d3[leg] = stat
 
-                print(d3, stat)
             if d3:
                 d2[team.to_team] = d3
         if len(seasons) != 0 and d2:
@@ -250,7 +251,6 @@ def rows_player_stat(player, season):
 
             if i.to_team in t.teams.all() and mtch_in_team_trn > 0:
                 k += 1
-    print(k)
     return k
 
 
@@ -258,17 +258,25 @@ def rows_player_stat(player, season):
 
 
 @register.filter
-def goals_sorted(match):
+def events_sorted(match: Match):
     events = match.match_event.all()
     substit = match.match_substitutions.all()
-    goals = list(match.match_goal.all())
+    all_events = list(match.match_goal.all())
     for e in events:
-        goals.append(e)
+        all_events.append(e)
     for s in substit:
-        goals.append(s)
-    g1 = sorted(goals, key=lambda time: time.time_sec)
-    g2 = sorted(g1, key=lambda time: time.time_min)
-    return g2
+        all_events.append(s)
+
+    sorted_events = sorted(all_events, key=lambda event: datetime.time(minute=event.time_min, second=event.time_sec))
+    events_by_time = {'first_time': [], 'second_time': [], 'extra_time': []}
+    for event in sorted_events:
+        if event.time_min < 8 or event.time_min == 8 and event.time_sec == 0:
+            events_by_time['first_time'].append(event)
+        elif event.time_min < 16 or event.time_min == 16 and event.time_sec == 0:
+            events_by_time['second_time'].append(event)
+        else:
+            events_by_time['extra_time'].append(event)
+    return events_by_time
 
 
 #   Фильтры для таблички лиги
@@ -704,7 +712,6 @@ def players_in_history(team):
         if (matches_in_team(i.trans_player, team) > 0) and (i.trans_player not in players):
             players.append(i.trans_player)
     a = sorted(players, key=lambda x: matches_in_team(x, team), reverse=True)
-    print(a)
     return a
 
 
@@ -727,3 +734,23 @@ def team_squad_in_season(season_achievements):
         return season_achievements[0].players_raw_list
 
     return ''
+
+
+@register.filter
+def get(d: {}, key):
+    return d[key]
+
+
+@register.filter
+def event_time(event):
+    return datetime.time(minute=event.time_min, second=event.time_sec).strftime('%M:%S')
+
+
+@register.filter
+def card_name(card: OtherEvents):
+    if card.event == OtherEvents.YELLOW_CARD:
+        return 'желтая карточка'
+    if card.event == OtherEvents.RED_CARD:
+        return 'красная карточка'
+    return ''
+

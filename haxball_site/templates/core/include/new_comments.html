@@ -15,6 +15,7 @@
         }
     </script>
 
+
 {% endblock %}
 
 
@@ -46,7 +47,7 @@
             {% endif %}
         </div>
 
-        <div class="card mb-5" style="border-radius: 20px 20px 0px 0px">
+        <div class="card mb-5" style="border-radius: 20px">
             {% if object.commentable %}
                 <div class="card-body card-body-comment">
                     {% if object.comments.count > 0 %}
@@ -57,7 +58,7 @@
                     <!-- <h6 class="card-subtitle">Комментарии</h6> -->
                 </div>
             {% endif %}
-            <div class="comment-widgets m-b-20">
+            <div class="comment-widgets">
                 {% for comment in comments %}
 
                     <!-- Всплывающее окно просмотра лайков -->
@@ -415,16 +416,18 @@
                         {% endif %}
                     {% endif %}
                 {% endfor %}
+            </div>
 
-
+            <div class="card-footer text-muted pb-0 pt-3">
+                {% if object.comments.count > 2 %}
+                    {% include "core/include/pagination.html" with page=comments %}
+                {% endif %}
             </div>
 
         </div>
-
     </div>
-
-
 </div>
+
 
 
 

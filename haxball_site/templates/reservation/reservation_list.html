@@ -64,7 +64,8 @@
                                                             {{ res.match.numb_tour.number|round_name:res.match.league.tours.count }}
                                                             ,
                                                         {% else %}
-                                                            {{ res.match.numb_tour }} тур{% endif %}
+                                                            {{ res.match.numb_tour.number }} тур
+                                                        {% endif %}
                                                     </span>
                                                         <span class="font-weight-bold small">
                                                             |

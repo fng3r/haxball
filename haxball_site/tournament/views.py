@@ -1,15 +1,41 @@
+from collections import defaultdict
+from datetime import datetime, time, timedelta
+
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Count, F, Q, Sum
+from django_filters import FilterSet, ChoiceFilter, ModelChoiceFilter
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.generic import ListView, DetailView
+from django_filters.filterset import BaseFilterSet
 
 from .forms import FreeAgentForm, EditTeamProfileForm
-from .models import FreeAgent, Team, Match, League, Player, Substitution, Season
+from .models import FreeAgent, Team, Match, League, Player, Substitution, Season, OtherEvents, Disqualification
 from core.forms import NewCommentForm
 from core.models import NewComment, Profile
+
+
+class DisqualificationFilter(FilterSet):
+    team = ModelChoiceFilter(queryset=Team.objects.filter(leagues__championship__is_active=True).distinct())
+
+    class Meta:
+        model = Disqualification
+        fields = ['team']
+
+
+class DisqualificationsList(ListView):
+    queryset = Disqualification.objects.filter(match__league__championship__is_active=True).order_by('-created')
+    context_object_name = 'disqualifications'
+    template_name = 'tournament/disqualification/disqualifications_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        print(self.request.GET)
+        context['filter'] = DisqualificationFilter(self.request.GET, queryset=self.queryset)
+
+        return context
 
 
 class FreeAgentList(ListView):
@@ -162,6 +188,56 @@ class MatchDetail(DetailView):
                                                                                           team_home=match.team_guest,
                                                                                           is_played=True))
 
+        substitutes = {match.team_home: [], match.team_guest: []}
+        team_home_start = match.team_home_start.all()
+        team_guest_start = match.team_guest_start.all()
+        for substitution in match.match_substitutions.all():
+            team = substitution.team
+            player_in = substitution.player_in
+            if player_in not in team_home_start and player_in not in team_guest_start:
+                substitutes[team].append(player_in)
+        context['team_home_substitutes'] = substitutes[match.team_home]
+        context['team_guest_substitutes'] = substitutes[match.team_guest]
+
+        goals = match.match_goal.values('author').annotate(goals=Count('author')).order_by('author')
+        goals_by_player = {d['author']: d['goals'] for d in goals}
+        context['goals_by_player'] = goals_by_player
+
+        assists = \
+            (match.match_goal
+             .exclude(assistent=None)
+             .values('assistent')
+             .annotate(assists=Count('assistent'))
+             .order_by('assistent'))
+        assists_by_player = {d['assistent']: d['assists'] for d in assists}
+        context['assists_by_player'] = assists_by_player
+
+        clean_sheets = \
+            (match.match_event
+                .filter(event=OtherEvents.CLEAN_SHIT)
+                .values('author')
+                .annotate(cs=Count('author'))
+                .order_by('author'))
+        clean_sheets_by_player = {d['author']: d['cs'] for d in clean_sheets}
+        context['clean_sheets_by_player'] = clean_sheets_by_player
+
+        time_played = defaultdict(int)
+        substitutions = match.match_substitutions.all()
+        full_match_time = int(timedelta(minutes=16, seconds=0).total_seconds())
+        start_players = match.team_home_start.all() | match.team_guest_start.all()
+        for player in start_players:
+            time_played[player.id] = full_match_time
+
+        for substitution in substitutions:
+            player_in = substitution.player_in.id
+            player_out = substitution.player_out.id
+            time_until_match_end = int(full_match_time - timedelta(minutes=substitution.time_min,
+                                                                   seconds=substitution.time_sec).total_seconds())
+            time_played[player_in] += time_until_match_end
+            time_played[player_out] -= time_until_match_end
+        time_played_by_player = {p: datetime.fromtimestamp(sec).strftime('%M:%S') for (p, sec) in time_played.items()}
+        context['time_played_by_player'] = time_played_by_player
+
         if all_matches_between.count() == 0:
             context['no_history'] = True
             return context
@@ -202,8 +278,6 @@ class MatchDetail(DetailView):
         win_home_percentage = round(100 * win_home / all_matches_between.count())
         draws_percentage = round(100 * draws / all_matches_between.count())
         win_guest_percentage = 100 - win_home_percentage - draws_percentage
-        print(win_home_percentage, draws_percentage, win_guest_percentage)
-        # print(match.team_home, match.team_guest, all_matches_between)
         context['all_matches_between'] = all_matches_between
         context['the_most_score'] = the_most_score
         context['win_home'] = win_home
