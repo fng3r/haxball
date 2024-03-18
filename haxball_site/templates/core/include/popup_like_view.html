@@ -37,7 +37,7 @@
                         {% for dislike in comment.votes.dislikes %}
 
                             <div class="voter-user">
-                                <img class="voter-avatar" src="{{ like.user.user_profile.avatar.url }}" alt="...">
+                                <img class="voter-avatar" src="{{ dislike.user.user_profile.avatar.url }}" alt="...">
                                 <p class="voter-nickname">{{dislike.user.username}}</p>
                             </div>
 

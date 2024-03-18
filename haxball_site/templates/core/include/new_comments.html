@@ -429,13 +429,6 @@
 </div>
 
 
-
-
-
-{% if object.comments.count > 2 %}
-    {% include "core/include/pagination.html" with page=comments %}
-{% endif %}
-
 <script>
 
     function addComment(name, id) {
