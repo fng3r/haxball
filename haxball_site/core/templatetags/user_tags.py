@@ -222,7 +222,10 @@ def usernames_list(likes):
 
 
 @register.filter
-def can_view_likes_details(comment, user):
+def can_view_likes_details(user: User):
+    if not user.is_authenticated:
+        return False
+
     if user.is_superuser:
         return True
 

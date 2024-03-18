@@ -41,7 +41,7 @@
     {% endif %}
 
     {% if comment.votes.likes.count > 0 or comment.votes.dislikes.count > 0 %}
-        {% if comment|can_view_likes_details:user %}
+        {% if user|can_view_likes_details %}
             <li class="like-stats-button fa fa-list" data-toggle="modal" data-target="#popupLikeDislike-{{comment.id}}">
                 <span data-count="like"></span>
             </li>
