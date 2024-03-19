@@ -14,7 +14,7 @@ from django.views.generic.base import View
 from pytils.translit import slugify
 
 from .forms import EditProfileForm, PostForm, NewCommentForm
-from .models import Post, Profile, LikeDislike, Category, Themes, NewComment
+from .models import Post, Profile, LikeDislike, Category, Themes, NewComment, UserNicknameHistoryItem
 from .templatetags.user_tags import can_edit, exceeds_edit_limit
 from tournament.models import Team, Achievements
 
@@ -312,6 +312,7 @@ class ProfileDetail(DetailView):
                 achievements_by_category[category] = list()
             achievements_by_category[category].append(achievement)
         context['achievements_by_category'] = achievements_by_category.items()
+        context['previous_nicknames'] = UserNicknameHistoryItem.objects.filter(user=profile.name).order_by('-edited')
 
         return context
 

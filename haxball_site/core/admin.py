@@ -153,3 +153,9 @@ class SubscriptionAdmin(admin.ModelAdmin):
         return model.is_active()
     is_active.boolean = True
     is_active.short_description = 'Активна'
+
+
+@admin.register(UserNicknameHistoryItem)
+class UserNicknameHistoryItemAdmin(admin.ModelAdmin):
+    list_display = ('user', 'nickname', 'edited')
+    autocomplete_fields = ('user',)
