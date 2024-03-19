@@ -224,7 +224,7 @@ h6 {
     color: black;
 }
 
-.history-nicknames{
+.nicknames-history{
     position: absolute;
     top: 0;
     left: 50%;
@@ -234,6 +234,12 @@ h6 {
     border-radius: 6px;
     box-shadow: 0px 0px 10px #000000;
     transition: 0.6s;
+    z-index: 999;
+}
+
+.nicknames-history-item:not(:last-of-type){
+    border-bottom: 1px solid #7b7b7b;
+    padding-bottom: 3px;
 }
 
 .link-decoration-none:focus, .link-decoration-none:active{

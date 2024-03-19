@@ -20,11 +20,11 @@
 
     historyNicknamesButton.addEventListener("click",function(event){
         if(nicknamesFlag){
-            document.querySelector('.history-nicknames').style.opacity = '0.8';
+            document.querySelector('.nicknames-history').style.opacity = '0.8';
             document.querySelector('.profile-triangle').style.transform = 'rotate(180deg)';
             nicknamesFlag = 0;
         } else {
-            document.querySelector('.history-nicknames').style.opacity = '0';
+            document.querySelector('.nicknames-history').style.opacity = '0';
             document.querySelector('.profile-triangle').style.transform = 'rotate(0deg)';
             nicknamesFlag = 1;
         }
