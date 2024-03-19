@@ -371,7 +371,7 @@ class UserNicknameHistoryItem(models.Model):
 
     @receiver(pre_save, sender=User)
     def create_history_item(sender, instance, **kwargs):
-        previous_instance = User.objects.get(pk=instance.pk)
+        previous_instance = User.objects.filter(pk=instance.pk).first()
         if previous_instance is None:
             return
 
