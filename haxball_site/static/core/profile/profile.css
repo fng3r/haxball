@@ -224,3 +224,48 @@ h6 {
     color: black;
 }
 
+.nicknames-history{
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 40%;
+    background: #000000;
+    opacity: 0;
+    border-radius: 6px;
+    box-shadow: 0px 0px 10px #000000;
+    transition: 0.6s;
+    z-index: 999;
+}
+
+.nicknames-history-item:not(:last-of-type){
+    border-bottom: 1px solid #7b7b7b;
+    padding-bottom: 3px;
+}
+
+.link-decoration-none:focus, .link-decoration-none:active{
+    outline: none;
+}
+
+
+.link-decoration-none,.link-decoration-none:hover{
+    text-decoration: none;
+    color: #ffffff;
+}
+
+.link-decoration-none:visited{
+    text-decoration: none;
+}
+
+.nickname-inline:hover{
+    transition: 0.3s;
+    color: #f5f5f5;
+}
+
+.nickname-inline{
+    transition: 0.3s;
+}
+
+.profile-triangle{
+    transform: rotate(0deg);
+    transition: 0.5s;
+}
