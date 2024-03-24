@@ -6,6 +6,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.functional import cached_property
 from smart_selects.db_fields import ChainedForeignKey
 
 from core.models import NewComment
@@ -238,6 +239,13 @@ class Match(models.Model):
     def __str__(self):
         return 'Матч {} - {}, {} тур'.format(self.team_home.short_title, self.team_guest.short_title, self.numb_tour)
 
+    def can_be_postponed(self):
+        return not self.is_played and timezone.now().date() >= self.numb_tour.date_from
+
+    @property
+    def is_postponed(self):
+        return self.postponements.count() > 0
+
     def get_absolute_url(self):
         return reverse('tournament:match_detail', args=[self.id])
 
@@ -401,6 +409,39 @@ class PlayerTransfer(models.Model):
     class Meta:
         verbose_name = 'Трансфер'
         verbose_name_plural = 'Трансферы'
+
+
+class Postponement(models.Model):
+    match = models.ForeignKey(Match, verbose_name='Матч', related_name='postponements',
+                              null=False, on_delete=models.CASCADE)
+    is_emergency = models.BooleanField('Экстренный', default=False),
+    teams = models.ManyToManyField(Team, verbose_name='На кого взят перенос', related_name='postponements')
+    taken_at = models.DateTimeField('Дата офомления переноса', auto_now_add=True)
+    taken_by = models.ForeignKey(User, verbose_name='Кем взят перенос', related_name='taken_postponements',
+                                 null=True, on_delete=models.SET_NULL)
+    cancelled_at = models.DateTimeField('Дата отмены переноса', null=True, blank=True)
+    cancelled_by = models.ForeignKey(User, verbose_name='Кем отменен перенос', related_name='cancelled_postponements',
+                                     null=True, on_delete=models.SET_NULL)
+
+    @property
+    def is_mutual(self):
+        return self.teams.count() > 1
+
+    @property
+    def league(self):
+        return self.match.league
+
+    @cached_property
+    def starts_at(self):
+        return self.match.match_date + timezone.timedelta(days=1)
+
+    @cached_property
+    def ends_at(self):
+        return self.match.match_date + timezone.timedelta(days=7)
+
+    class Meta:
+        verbose_name = 'Перенос'
+        verbose_name_plural = 'Переносы'
 
 
 class AchievementCategory(models.Model):
