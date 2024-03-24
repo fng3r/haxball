@@ -3,6 +3,7 @@ from datetime import date, datetime
 from django import template
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.core.paginator import Page
 from django.db.models import Count, Q
 from django.utils import timezone
 from online_users.models import OnlineUserActivity
@@ -213,7 +214,7 @@ def can_edit_profile_bg(user: User):
 
     subscriptions = Subscription.objects.by_user(user).active().order_by('tier')
     return subscriptions.count() > 0
-  
+
 
 @register.filter
 def usernames_list(likes):
@@ -221,12 +222,15 @@ def usernames_list(likes):
 
 
 @register.filter
-def can_view_likes_details(comment, user):
+def can_view_likes_details(user: User):
+    if not user.is_authenticated:
+        return False
+
     if user.is_superuser:
         return True
 
     subscriptions = Subscription.objects.by_user(user).active().order_by('tier')
-    return comment.author == user and subscriptions.count() > 0
+    return subscriptions.count() > 0
 
 
 @register.inclusion_tag('core/include/teams_in_navbar.html')
@@ -238,3 +242,42 @@ def teams_in_navbar():
             teams.append(t)
     return {'teams': teams}
 
+
+@register.filter
+def pages_to_show(page: Page):
+    pages_show_count = 15
+    pages_total = page.paginator.num_pages
+    if pages_total <= pages_show_count:
+        yield from range(1, pages_total + 1)
+        return
+
+    is_page_at_start = page.number <= pages_show_count // 2
+    is_page_at_end = pages_total - page.number <= pages_show_count // 2
+
+    # selected page is in the middle
+    if not is_page_at_start and not is_page_at_end:
+        pages_show_count -= 4
+        yield 1
+        yield None
+        yield from range(page.number - pages_show_count // 2, page.number + pages_show_count // 2 + 1)
+        yield None
+        yield page.paginator.num_pages
+        return
+
+    if is_page_at_start:
+        pages_show_count -= 2
+        pages_before = page.number - 1
+        pages_after = pages_show_count - pages_before - 1
+        yield from range(1, page.number + pages_after + 1)
+        yield None
+        yield pages_total
+        return
+
+    if is_page_at_end:
+        pages_show_count -= 2
+        pages_after = pages_total - page.number
+        pages_before = pages_show_count - pages_after - 1
+        yield 1
+        yield None
+        yield from range(page.number - pages_before, pages_total + 1)
+        return

@@ -7,7 +7,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import Sum, Max, Q
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
@@ -183,7 +183,7 @@ class CommentHistoryItem(models.Model):
 
     class Meta:
         verbose_name = ''
-        verbose_name_plural = 'История комментарев'
+        verbose_name_plural = 'История комментариев'
         ordering = ('-comment__id', '-created',)
 
     @receiver(post_save, sender=NewComment)
@@ -360,6 +360,26 @@ class UserIcon(models.Model):
         verbose_name_plural = 'Иконки'
 
 
+class UserNicknameHistoryItem(models.Model):
+    user = models.ForeignKey(User, verbose_name='Пользователь', on_delete=models.CASCADE)
+    nickname = models.CharField(verbose_name='Никнейм', max_length=50)
+    edited = models.DateTimeField('Дата смены', default=timezone.now)
+
+    class Meta:
+        verbose_name = 'История никнеймов'
+        verbose_name_plural = 'История никнеймов'
+
+    @receiver(pre_save, sender=User)
+    def create_history_item(sender, instance, **kwargs):
+        previous_instance = User.objects.filter(pk=instance.pk).first()
+        if previous_instance is None:
+            return
+
+        print(previous_instance.username, instance.username)
+        if previous_instance.username != instance.username:
+            UserNicknameHistoryItem.objects.create(user=instance, nickname=previous_instance.username)
+
+
 class SubscriptionQuerySet(models.QuerySet):
     def by_user(self, user):
         return self.filter(user=user)
@@ -380,7 +400,7 @@ class Subscription(models.Model):
 
     user = models.ForeignKey(User, verbose_name='Пользователь', related_name='subscriptions',
                              on_delete=models.SET_NULL, null=True)
-    starts_at = models.DateTimeField('Дата начала', default=timezone.now())
+    starts_at = models.DateTimeField('Дата начала', default=timezone.now)
     expires_at = models.DateTimeField('Дата окончания')
     tier = models.PositiveSmallIntegerField('Тир подписки', choices=TIERS, default=TIER_1)
     disabled = models.BooleanField('Отключена', default=False)

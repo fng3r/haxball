@@ -47,7 +47,7 @@
             {% endif %}
         </div>
 
-        <div class="card mb-5" style="border-radius: 20px 20px 0px 0px">
+        <div class="card mb-5" style="border-radius: 20px">
             {% if object.commentable %}
                 <div class="card-body card-body-comment">
                     {% if object.comments.count > 0 %}
@@ -58,8 +58,11 @@
                     <!-- <h6 class="card-subtitle">Комментарии</h6> -->
                 </div>
             {% endif %}
-            <div class="comment-widgets m-b-20">
+            <div class="comment-widgets">
                 {% for comment in comments %}
+
+                    <!-- Всплывающее окно просмотра лайков -->
+                    {% include 'core/include/popup_like_view.html' with comment=comment %}
 
                     <!-- Непосредственно комментарий -->
                     {% if comment.is_parent %}
@@ -231,6 +234,9 @@
                             <div class="d-flex flex-row comment-row" style="padding-left: 100px"
                                  id="r{{ children.id }}">
                                 <div class="p-2">
+
+                                <!-- Всплывающее окно просмотра лайков -->
+                                {% include 'core/include/popup_like_view.html' with comment=children %}
                             <span class="round">
                                 <a href="{{ children.author.user_profile.get_absolute_url }}">
                                     {% thumbnail children.author.user_profile.avatar "50x50" crop="center" as im %}
@@ -410,24 +416,18 @@
                         {% endif %}
                     {% endif %}
                 {% endfor %}
+            </div>
 
-
+            <div class="card-footer text-muted pb-0 pt-3">
+                {% if object.comments.count > 2 %}
+                    {% include "core/include/pagination.html" with page=comments %}
+                {% endif %}
             </div>
 
         </div>
-
     </div>
-
-
 </div>
 
-
-
-
-
-{% if object.comments.count > 2 %}
-    {% include "core/include/pagination.html" with page=comments %}
-{% endif %}
 
 <script>
 

@@ -224,22 +224,48 @@ h6 {
     color: black;
 }
 
-/* custom scrollbar */
-::-webkit-scrollbar {
-  width: 20px;
+.nicknames-history{
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 40%;
+    background: #000000;
+    opacity: 0;
+    border-radius: 6px;
+    box-shadow: 0px 0px 10px #000000;
+    transition: 0.6s;
+    z-index: 999;
 }
 
-::-webkit-scrollbar-track {
-  background-color: transparent;
+.nicknames-history-item:not(:last-of-type){
+    border-bottom: 1px solid #7b7b7b;
+    padding-bottom: 3px;
 }
 
-::-webkit-scrollbar-thumb {
-  background-color: #d6dee1;
-  border-radius: 20px;
-  border: 6px solid transparent;
-  background-clip: content-box;
+.link-decoration-none:focus, .link-decoration-none:active{
+    outline: none;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background-color: #a8bbbf;
+
+.link-decoration-none,.link-decoration-none:hover{
+    text-decoration: none;
+    color: #ffffff;
+}
+
+.link-decoration-none:visited{
+    text-decoration: none;
+}
+
+.nickname-inline:hover{
+    transition: 0.3s;
+    color: #f5f5f5;
+}
+
+.nickname-inline{
+    transition: 0.3s;
+}
+
+.profile-triangle{
+    transform: rotate(0deg);
+    transition: 0.5s;
 }
