@@ -332,7 +332,11 @@ class Disqualification(models.Model):
     player = ChainedForeignKey(Player, verbose_name='Игрок', chained_field='team', chained_model_field='team',
                                related_name='disqualifications', null=False, on_delete=models.CASCADE)
     reason = models.CharField('Причина дисквалификации', max_length=150, null=True)
-    tours = models.ManyToManyField(TourNumber, verbose_name='Туры', null=False)
+    tours = models.ManyToManyField(TourNumber, verbose_name='Туры', related_name='disqualifications', null=False,
+                                   help_text='Туры, на которые распостраняется дисквалификация')
+    lifted_tours = models.ManyToManyField(TourNumber, verbose_name='Отмененные туры',
+                                          help_text='Туры, на которые дисквалификация была снята. Должно являться '
+                                                    'подмножеством списка туров, на которые дисквалификация была выдана')
     created = models.DateTimeField('Выдана', auto_now_add=True)
 
     class Meta:

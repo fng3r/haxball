@@ -81,16 +81,20 @@ class NationAdmin(admin.ModelAdmin):
 
 @admin.register(Disqualification)
 class DisqualificationAdmin(admin.ModelAdmin):
-    list_display = ('match', 'team', 'player', 'reason', 'get_tours', 'created')
-    filter_horizontal = ('tours',)
+    list_display = ('match', 'team', 'player', 'reason', 'get_tours', 'get_lifted_tours', 'created')
+    filter_horizontal = ('tours', 'lifted_tours')
 
     def get_tours(self, model):
         return ', '.join(map(lambda t: str(t), model.tours.all()))
     get_tours.short_description = 'Туры'
 
+    def get_lifted_tours(self, model):
+        return ', '.join(map(lambda t: str(t), model.lifted_tours.all()))
+    get_lifted_tours.short_description = 'Отмененные туры'
+
     def formfield_for_manytomany(self, db_field, request, **kwargs):
-        if db_field.name == "tours":
-            kwargs["queryset"] = TourNumber.objects.filter(league__championship__is_active=True).order_by('number')
+        if db_field.name == 'tours' or db_field.name == 'lifted_tours':
+            kwargs['queryset'] = TourNumber.objects.filter(league__championship__is_active=True).order_by('number')
         return super().formfield_for_manytomany(db_field, request, **kwargs)
 
 

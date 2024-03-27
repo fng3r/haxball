@@ -4,7 +4,8 @@ from django import template
 from django.db.models import Q, Count
 from django.utils import timezone
 
-from ..models import FreeAgent, OtherEvents, Goal, Match, League, Team, Player, Substitution, Season, PlayerTransfer
+from ..models import FreeAgent, OtherEvents, Goal, Match, League, Team, Player, Substitution, Season, PlayerTransfer, \
+    Disqualification
 
 register = template.Library()
 
@@ -754,3 +755,16 @@ def card_name(card: OtherEvents):
         return 'красная карточка'
     return ''
 
+
+@register.filter
+def get_lifted_string(disqualification: Disqualification):
+    tours = disqualification.tours.all()
+    lifted_tours = disqualification.lifted_tours.all()
+    if len(lifted_tours) == 0:
+        return 'Нет'
+
+    diff = set(tours).difference(set(lifted_tours))
+    if len(diff) == 0:
+        return 'Да'
+
+    return 'Частично\n' + '\n'.join(map(lambda t: str(t), diff))
