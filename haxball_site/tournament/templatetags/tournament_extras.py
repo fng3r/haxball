@@ -1,10 +1,11 @@
 import datetime
 
 from django import template
-from django.db.models import Q, Count
+from django.db.models import Q, Count, QuerySet
 from django.utils import timezone
 
-from ..models import FreeAgent, OtherEvents, Goal, Match, League, Team, Player, Substitution, Season, PlayerTransfer
+from ..models import FreeAgent, OtherEvents, Goal, Match, League, Team, Player, Substitution, Season, PlayerTransfer, \
+    Postponement
 
 register = template.Library()
 
@@ -754,3 +755,52 @@ def card_name(card: OtherEvents):
         return 'красная карточка'
     return ''
 
+
+@register.filter
+def postponements_in_leagues(team: Team, leagues: QuerySet) -> list[Postponement | None]:
+    postponements = team.postponements.filter(cancelled_at=None, match__league__in=leagues).order_by('taken_at')
+    postponement_slots = [None for _ in range(1, 7)]
+    common_slots_count = 3
+    emergency_slots_count = 3
+    common_count = 0
+    emergency_count = 0
+    for postponement in postponements:
+        if postponement.is_emergency:
+            postponement_slots[common_slots_count + emergency_count] = postponement
+            emergency_count += 1
+        else:
+            if common_count < common_slots_count:
+                postponement_slots[common_count] = postponement
+            else:
+                postponement_slots[common_slots_count + emergency_count] = postponement
+            common_count += 1
+        print(common_count, emergency_count)
+        print(postponement_slots)
+
+    return postponement_slots
+
+
+@register.inclusion_tag('tournament/postponements/postponements_form.html')
+def postponements_form(user):
+    try:
+        player = user.user_player
+    except Exception as e:
+        print(e)
+        return {'user': user, 'matches': []}
+    teams = []
+    if player.role == Player.CAPTAIN or player.role == Player.ASSISTENT:
+        teams.append(player.team)
+
+    owned_teams = Team.objects.filter(owner=user, leagues__championship__is_active=True)
+    print(owned_teams)
+    for team in owned_teams:
+        teams.append(team)
+
+    # Выбираем все матчи игрока, которые уже можно играть, но котоыре еще не были сыграны
+    matches = Match.objects.filter(Q(team_home__in=teams) | Q(team_guest__in=teams),
+                                   is_played=False, numb_tour__date_from__lte=timezone.now().date())
+
+    return {
+        'matches': matches,
+        'user': user,
+    }

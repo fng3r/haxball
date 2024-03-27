@@ -1,17 +1,19 @@
 from collections import defaultdict
 from datetime import datetime, time, timedelta
+from functools import reduce
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Count, F, Q, Sum
-from django_filters import FilterSet, ModelChoiceFilter
+from django_filters import FilterSet, ModelChoiceFilter, ChoiceFilter
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.generic import ListView, DetailView
 
 from .forms import FreeAgentForm, EditTeamProfileForm
-from .models import FreeAgent, Team, Match, League, Player, Substitution, Season, OtherEvents, Disqualification
+from .models import FreeAgent, Team, Match, League, Player, Substitution, Season, OtherEvents, Disqualification, \
+    Postponement
 from core.forms import NewCommentForm
 from core.models import NewComment, Profile
 
@@ -35,12 +37,6 @@ class DisqualificationsList(ListView):
         context['filter'] = DisqualificationFilter(self.request.GET, queryset=self.queryset)
 
         return context
-
-
-class PostponementsView(ListView):
-    template_name = 'tournament/postponements.html'
-    queryset = Team.objects.all().order_by('-title')
-    context_object_name = 'postponements'
 
 
 class FreeAgentList(ListView):
@@ -296,6 +292,60 @@ class MatchDetail(DetailView):
         context['score_home_average'] = round(score_home_all / all_matches_between.count(), 2)
         context['score_guest_average'] = round(score_guest_all / all_matches_between.count(), 2)
         return context
+
+
+class LeagueByTitleFilter(FilterSet):
+    CHOICES = (
+        ('Высшая лига', 'Высшая лига'),
+        ('Первая лига', 'Первая лига'),
+        ('Вторая лига', 'Вторая лига'),
+        ('Кубок Высшей лиги', 'Кубок Высшей лиги'),
+        ('Кубок Первой лиги', 'Кубок Первой лиги'),
+        ('Кубок Второй лиги', 'Кубок Второй лиги'),
+    )
+
+    title = ChoiceFilter(choices=CHOICES, lookup_expr='icontains', label='Турнир', empty_label=None)
+
+    class Meta:
+        model = League
+        fields = ['title']
+
+
+class PostponementsList(ListView):
+    queryset = Postponement.objects.filter(match__league__title='Высшая лига', match__league__championship__is_active=True)
+    context_object_name = 'postponements'
+    template_name = 'tournament/postponements/postponements.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(PostponementsList, self).get_context_data(**kwargs)
+        filter = LeagueByTitleFilter(self.request.GET, queryset=League.objects.filter(championship__is_active=True))
+        teams = reduce(lambda acc, league: acc.union(league.teams.all()), filter.qs, set())
+
+        context['teams'] = teams
+        context['filter'] = filter
+        return context
+
+    def post(self, request):
+        data = request.POST
+
+        match = int(data['match'])
+        raw_teams = data['teams']
+        if raw_teams == 'Обоюдный':
+            teams = [match.team_home, match.team_guest]
+        else:
+            team_id = raw_teams
+            team = Team.objects.first(pk=team_id)
+            teams = [team]
+        is_emergency = False
+        if data['emergency'] == 'Экстренный':
+            is_emergency = True
+        taken_by = request.user
+        postponement = Postponement.object.create(match=match, is_emergency=is_emergency, teams=teams,
+                                                  taken_by=taken_by)
+        if postponement:
+            return redirect('tournament:postponements')
+        else:
+            return render(request, self.get_context_data())
 
 
 def halloffame(request):

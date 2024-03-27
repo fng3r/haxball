@@ -235,12 +235,10 @@ class Match(models.Model):
 
     comment = models.TextField('Комментарий к матчу', max_length=1024, blank=True, null=True)
 
-    def __str__(self):
-        return 'Матч {} - {}, {} тур'.format(self.team_home.short_title, self.team_guest.short_title, self.numb_tour.number)
-
     def cards(self):
         return self.match_event.filter(Q(event=OtherEvents.YELLOW_CARD) | Q(event=OtherEvents.RED_CARD)).order_by('team')
 
+    @property
     def can_be_postponed(self):
         return not self.is_played and timezone.now().date() >= self.numb_tour.date_from
 
@@ -250,6 +248,9 @@ class Match(models.Model):
 
     def get_absolute_url(self):
         return reverse('tournament:match_detail', args=[self.id])
+
+    def __str__(self):
+        return 'Матч {} - {}, {} тур'.format(self.team_home.short_title, self.team_guest.short_title, self.numb_tour.number)
 
     class Meta:
         verbose_name = 'Матч'
@@ -437,18 +438,22 @@ class PlayerTransfer(models.Model):
 class Postponement(models.Model):
     match = models.ForeignKey(Match, verbose_name='Матч', related_name='postponements',
                               null=False, on_delete=models.CASCADE)
-    is_emergency = models.BooleanField('Экстренный', default=False),
+    is_emergency = models.BooleanField('Экстренный', default=False)
     teams = models.ManyToManyField(Team, verbose_name='На кого взят перенос', related_name='postponements')
-    taken_at = models.DateTimeField('Дата офомления переноса', auto_now_add=True)
+    taken_at = models.DateTimeField('Дата офомления переноса', default=timezone.now)
     taken_by = models.ForeignKey(User, verbose_name='Кем взят перенос', related_name='taken_postponements',
                                  null=True, on_delete=models.SET_NULL)
     cancelled_at = models.DateTimeField('Дата отмены переноса', null=True, blank=True)
     cancelled_by = models.ForeignKey(User, verbose_name='Кем отменен перенос', related_name='cancelled_postponements',
-                                     null=True, on_delete=models.SET_NULL)
+                                     null=True, blank=True, on_delete=models.SET_NULL)
 
     @property
     def is_mutual(self):
         return self.teams.count() > 1
+
+    @property
+    def is_cancelled(self):
+        return self.cancelled_at is not None
 
     @property
     def league(self):
@@ -456,11 +461,11 @@ class Postponement(models.Model):
 
     @cached_property
     def starts_at(self):
-        return self.match.match_date + timezone.timedelta(days=1)
+        return self.match.numb_tour.date_to + timezone.timedelta(days=1)
 
     @cached_property
     def ends_at(self):
-        return self.match.match_date + timezone.timedelta(days=7)
+        return self.match.numb_tour.date_to + timezone.timedelta(days=7)
 
     class Meta:
         verbose_name = 'Перенос'

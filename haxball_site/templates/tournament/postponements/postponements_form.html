@@ -1,0 +1,55 @@
+<div class="card bg-c-lite-unknown mb-2" style="border-radius: 30px; height: 200px; overflow-y: auto;">
+    {% if matches %}
+        <table class="table table-hover" style="max-width: 90%; margin: 10px auto; background: #ffffff">
+            <thead class="thead-dark py-2 text-center">
+                <tr>
+                    <th width="5%" scope="col">Лига</th>
+                    <th width="5%" scope="col">Тур</th>
+                    <th scope="col">Хозяева</th>
+                    <th scope="col">Гости</th>
+                    <th scope="col">Статус</th>
+                    <th scope="col">Тип переноса</th>
+                    <th scope="col">Подтверждение</th>
+                </tr>
+            </thead>
+
+            <tbody style="text-align: center;">
+                {% for match in matches %}
+                <tr>
+                    <form method="POST" class="row p-3">
+                        {% csrf_token %}
+                        <input type="hidden" name="author" value="{{ user.id }}">
+                        <input type="hidden" name="match" value="{{ match }}"/>
+
+                        <td width="5%">ВЛ</td>
+                        <td width="5%" scope="col">1</td>
+                        <td style="font-size: 15px"><img src="https://www.cis-haxball.com/media/team_logos/omp-new-2s.png" alt="..." width="25" height="25"> One more pass</td>
+                        <td style="font-size: 15px"><img src="http://www.cis-haxball.com/media/team_logos/greenland_1s.png" alt="..." width="25" height="25"> GreenLand</td>
+                        <td>
+                            <select class="postponements-select" name="team">
+                                <option value="none">Нет переноса</option>
+                                <option value="home">Перенос на хозяев</option>
+                                <option value="guests">Перенос на гостей</option>
+                                <option value="allTeams">Обоюдный перенос</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select class="postponements-select" name="type">
+                                <option value="usual">Обычный перенос</option>
+                                <option value="extra">Экстренный перенос</option>
+                            </select>
+                        </td>
+                        <td>
+                            <button class="postponements-button" type="submit">Перенос</button>
+                        </td>
+                    </form>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="d-inline-flex justify-content-center bg-c-lite-unknown p-3" style="border-radius: 30px">
+            <h6 class="mb-0">У Вас сыграны все текущие матчи</h6>
+        </div>
+    {% endif %}
+</div>
