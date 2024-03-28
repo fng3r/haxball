@@ -775,8 +775,6 @@ def postponements_in_leagues(team: Team, leagues: QuerySet) -> list[Postponement
             else:
                 postponement_slots[common_slots_count + emergency_count] = postponement
             common_count += 1
-        print(common_count, emergency_count)
-        print(postponement_slots)
 
     return postponement_slots
 
@@ -792,11 +790,11 @@ def can_be_cancelled_by_user(postponement: Postponement, user: User):
 
 
 @register.inclusion_tag('tournament/postponements/postponements_form.html')
-def postponements_form(user: User):
+def postponements_form(user: User, leagues: QuerySet):
     teams = get_user_teams(user)
 
     # Выбираем все матчи игрока, которые уже можно играть, но котоыре еще не были сыграны
-    matches = Match.objects.filter(Q(team_home__in=teams) | Q(team_guest__in=teams),
+    matches = Match.objects.filter(Q(team_home__in=teams) | Q(team_guest__in=teams), league__in=leagues,
                                    is_played=False, numb_tour__date_from__lte=timezone.now().date())
 
     return {

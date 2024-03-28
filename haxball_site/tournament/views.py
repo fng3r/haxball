@@ -1,3 +1,4 @@
+import operator
 from collections import defaultdict
 from datetime import datetime, time, timedelta
 from functools import reduce
@@ -139,7 +140,7 @@ class LeagueDetail(DetailView):
         comments_obj = NewComment.objects.filter(content_type=ContentType.objects.get_for_model(League),
                                                  object_id=league.id,
                                                  parent=None)
-        print(comments_obj)
+
         paginate = Paginator(comments_obj, 25)
         page = self.request.GET.get('page')
 
@@ -315,15 +316,32 @@ class LeagueByTitleFilter(FilterSet):
 
 
 class PostponementsList(ListView):
-    queryset = Postponement.objects.filter(match__league__title='Высшая лига', match__league__championship__is_active=True)
-    context_object_name = 'postponements'
+    queryset = (Postponement.objects
+                .filter(match__league__championship__is_active=True)
+                .order_by('-taken_at'))
+    context_object_name = 'all_postponements'
     template_name = 'tournament/postponements/postponements.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         filter = LeagueByTitleFilter(self.request.GET, queryset=League.objects.filter(championship__is_active=True))
-        teams = reduce(lambda acc, league: acc.union(league.teams.all()), filter.qs, set())
+        leagues = filter.qs
+        teams = reduce(lambda acc, league: acc.union(league.teams.all()), leagues, set())
+        postponements = context['all_postponements'].filter(match__league__in=leagues)
 
+        paginator = Paginator(postponements, 20)
+        page = self.request.GET.get('page')
+
+        try:
+            postponements = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer deliver the first page
+            postponements = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range deliver last page of results
+            postponements = paginator.page(paginator.num_pages)
+
+        context['postponements'] = postponements
         context['teams'] = teams
         context['filter'] = filter
         return context
