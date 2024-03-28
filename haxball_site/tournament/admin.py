@@ -4,7 +4,7 @@ from django.db.models import Q
 from django.urls import resolve
 
 from .models import FreeAgent, Player, League, Team, Match, Goal, OtherEvents, Substitution, Season, PlayerTransfer, \
-    TourNumber, Nation, Achievements, TeamAchievement, AchievementCategory, Disqualification
+    TourNumber, Nation, Achievements, TeamAchievement, AchievementCategory, Disqualification, Postponement
 
 
 @admin.register(FreeAgent)
@@ -95,6 +95,26 @@ class DisqualificationAdmin(admin.ModelAdmin):
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         if db_field.name == 'tours' or db_field.name == 'lifted_tours':
             kwargs['queryset'] = TourNumber.objects.filter(league__championship__is_active=True).order_by('number')
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
+
+
+@admin.register(Postponement)
+class PostponementAdmin(admin.ModelAdmin):
+    list_display = ('match', 'is_emergency', 'get_teams', 'taken_at', 'taken_by', 'cancelled_at', 'cancelled_by')
+    filter_horizontal = ('teams',)
+
+    def get_teams(self, model):
+        return ', '.join(map(lambda t: str(t), model.teams.all()))
+    get_teams.short_description = 'На кого взят перенос'
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'match':
+            kwargs['queryset'] = Match.objects.filter(league__championship__is_active=True).order_by('numb_tour__number')
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name == 'teams':
+            kwargs['queryset'] = Team.objects.filter(leagues__championship__is_active=True).distinct()
         return super().formfield_for_manytomany(db_field, request, **kwargs)
 
 

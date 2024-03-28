@@ -1,11 +1,12 @@
 import datetime
 
 from django import template
-from django.db.models import Q, Count
+from django.contrib.auth.models import User
+from django.db.models import Q, Count, QuerySet
 from django.utils import timezone
 
 from ..models import FreeAgent, OtherEvents, Goal, Match, League, Team, Player, Substitution, Season, PlayerTransfer, \
-    Disqualification
+    Disqualification, Postponement
 
 register = template.Library()
 
@@ -768,3 +769,65 @@ def get_lifted_string(disqualification: Disqualification):
         return 'Да'
 
     return 'Частично\n' + '\n'.join(map(lambda t: str(t), diff))
+
+@register.filter
+def postponements_in_leagues(team: Team, leagues: QuerySet) -> list[Postponement]:
+    postponements = team.postponements.filter(cancelled_at=None, match__league__in=leagues).order_by('taken_at')
+    postponement_slots = [None for _ in range(1, 7)]
+    common_slots_count = 3
+    emergency_slots_count = 3
+    common_count = 0
+    emergency_count = 0
+    for postponement in postponements:
+        if postponement.is_emergency:
+            postponement_slots[common_slots_count + emergency_count] = postponement
+            emergency_count += 1
+        else:
+            if common_count < common_slots_count:
+                postponement_slots[common_count] = postponement
+            else:
+                postponement_slots[common_slots_count + emergency_count] = postponement
+            common_count += 1
+
+    return postponement_slots
+
+
+@register.filter
+def can_be_cancelled_by_user(postponement: Postponement, user: User):
+    if not postponement.can_be_cancelled:
+        return False
+
+    user_teams = get_user_teams(user)
+
+    return postponement.match.team_home in user_teams or postponement.match.team_guest in user_teams
+
+
+@register.inclusion_tag('tournament/postponements/postponements_form.html')
+def postponements_form(user: User, leagues: QuerySet):
+    teams = get_user_teams(user)
+
+    # Выбираем все матчи игрока, которые уже можно играть, но котоыре еще не были сыграны
+    matches = Match.objects.filter(Q(team_home__in=teams) | Q(team_guest__in=teams), league__in=leagues,
+                                   is_played=False, numb_tour__date_from__lte=timezone.now().date())
+
+    return {
+        'matches': matches,
+        'user': user,
+    }
+
+
+def get_user_teams(user: User):
+    try:
+        player = user.user_player
+    except Exception as e:
+        print(e)
+        return []
+    teams = []
+    if player.role == Player.CAPTAIN or player.role == Player.ASSISTENT:
+        teams.append(player.team)
+
+    owned_teams = Team.objects.filter(owner=user, leagues__championship__is_active=True)
+    for team in owned_teams:
+        teams.append(team)
+
+    return teams

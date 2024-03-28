@@ -1,20 +1,25 @@
+import operator
 from collections import defaultdict
 from datetime import datetime, time, timedelta
+from functools import reduce
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Count, F, Q, Sum
-from django_filters import FilterSet, ChoiceFilter, ModelChoiceFilter
+from django.views.decorators.http import require_POST
+from django_filters import FilterSet, ModelChoiceFilter, ChoiceFilter
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.generic import ListView, DetailView
-from django_filters.filterset import BaseFilterSet
 
 from .forms import FreeAgentForm, EditTeamProfileForm
-from .models import FreeAgent, Team, Match, League, Player, Substitution, Season, OtherEvents, Disqualification
+from .models import FreeAgent, Team, Match, League, Player, Substitution, Season, OtherEvents, Disqualification, \
+    Postponement
 from core.forms import NewCommentForm
 from core.models import NewComment, Profile
+
+from .templatetags.tournament_extras import get_user_teams
 
 
 class DisqualificationFilter(FilterSet):
@@ -135,7 +140,7 @@ class LeagueDetail(DetailView):
         comments_obj = NewComment.objects.filter(content_type=ContentType.objects.get_for_model(League),
                                                  object_id=league.id,
                                                  parent=None)
-        print(comments_obj)
+
         paginate = Paginator(comments_obj, 25)
         page = self.request.GET.get('page')
 
@@ -291,6 +296,90 @@ class MatchDetail(DetailView):
         context['score_home_average'] = round(score_home_all / all_matches_between.count(), 2)
         context['score_guest_average'] = round(score_guest_all / all_matches_between.count(), 2)
         return context
+
+
+class LeagueByTitleFilter(FilterSet):
+    CHOICES = (
+        ('Высшая лига', 'Высшая лига'),
+        ('Первая лига', 'Первая лига'),
+        ('Вторая лига', 'Вторая лига'),
+        ('Кубок Высшей лиги', 'Кубок Высшей лиги'),
+        ('Кубок Первой лиги', 'Кубок Первой лиги'),
+        ('Кубок Второй лиги', 'Кубок Второй лиги'),
+    )
+
+    title = ChoiceFilter(choices=CHOICES, lookup_expr='icontains', label='Турнир', empty_label=None)
+
+    class Meta:
+        model = League
+        fields = ['title']
+
+
+class PostponementsList(ListView):
+    queryset = (Postponement.objects
+                .filter(match__league__championship__is_active=True)
+                .order_by('-taken_at'))
+    context_object_name = 'all_postponements'
+    template_name = 'tournament/postponements/postponements.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        filter = LeagueByTitleFilter(self.request.GET, queryset=League.objects.filter(championship__is_active=True))
+        leagues = filter.qs
+        teams = reduce(lambda acc, league: acc.union(league.teams.all()), leagues, set())
+        postponements = context['all_postponements'].filter(match__league__in=leagues)
+
+        paginator = Paginator(postponements, 20)
+        page = self.request.GET.get('page')
+
+        try:
+            postponements = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer deliver the first page
+            postponements = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range deliver last page of results
+            postponements = paginator.page(paginator.num_pages)
+
+        context['postponements'] = postponements
+        context['teams'] = teams
+        context['filter'] = filter
+        return context
+
+    def post(self, request):
+        data = request.POST
+
+        match_id = int(data['match_id'])
+        match = Match.objects.get(pk=match_id)
+        team = data['team']
+        type = data['type']
+
+        if team == 'mutual':
+            teams = [match.team_home, match.team_guest]
+        else:
+            team_id = int(team)
+            teams = [Team.objects.get(pk=team_id)]
+        is_emergency = type == 'emergency'
+        taken_by = request.user
+        postponement = Postponement.objects.create(match=match, is_emergency=is_emergency, taken_by=taken_by)
+        postponement.teams.set(teams)
+
+        return redirect('tournament:postponements')
+
+
+@require_POST
+def cancel_postponement(request, pk):
+    postponement = get_object_or_404(Postponement, pk=pk)
+    user_teams = get_user_teams(request.user)
+
+    if (postponement.match.team_home in user_teams) or (postponement.match.team_guest in user_teams):
+        postponement.cancelled_at = timezone.now()
+        postponement.cancelled_by = request.user
+        postponement.save()
+
+        return redirect('tournament:postponements')
+    else:
+        return HttpResponse('Ошибка доступа')
 
 
 def halloffame(request):
