@@ -1,6 +1,7 @@
 import datetime
 
 from django import template
+from django.contrib.auth.models import User
 from django.db.models import Q, Count, QuerySet
 from django.utils import timezone
 
@@ -780,21 +781,19 @@ def postponements_in_leagues(team: Team, leagues: QuerySet) -> list[Postponement
     return postponement_slots
 
 
-@register.inclusion_tag('tournament/postponements/postponements_form.html')
-def postponements_form(user):
-    try:
-        player = user.user_player
-    except Exception as e:
-        print(e)
-        return {'user': user, 'matches': []}
-    teams = []
-    if player.role == Player.CAPTAIN or player.role == Player.ASSISTENT:
-        teams.append(player.team)
+@register.filter
+def can_be_cancelled_by_user(postponement: Postponement, user: User):
+    if not postponement.can_be_cancelled:
+        return False
 
-    owned_teams = Team.objects.filter(owner=user, leagues__championship__is_active=True)
-    print(owned_teams)
-    for team in owned_teams:
-        teams.append(team)
+    user_teams = get_user_teams(user)
+
+    return postponement.match.team_home in user_teams or postponement.match.team_guest in user_teams
+
+
+@register.inclusion_tag('tournament/postponements/postponements_form.html')
+def postponements_form(user: User):
+    teams = get_user_teams(user)
 
     # Выбираем все матчи игрока, которые уже можно играть, но котоыре еще не были сыграны
     matches = Match.objects.filter(Q(team_home__in=teams) | Q(team_guest__in=teams),
@@ -804,3 +803,20 @@ def postponements_form(user):
         'matches': matches,
         'user': user,
     }
+
+
+def get_user_teams(user: User):
+    try:
+        player = user.user_player
+    except Exception as e:
+        print(e)
+        return []
+    teams = []
+    if player.role == Player.CAPTAIN or player.role == Player.ASSISTENT:
+        teams.append(player.team)
+
+    owned_teams = Team.objects.filter(owner=user, leagues__championship__is_active=True)
+    for team in owned_teams:
+        teams.append(team)
+
+    return teams

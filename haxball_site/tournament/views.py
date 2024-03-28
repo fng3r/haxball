@@ -5,6 +5,7 @@ from functools import reduce
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Count, F, Q, Sum
+from django.views.decorators.http import require_POST
 from django_filters import FilterSet, ModelChoiceFilter, ChoiceFilter
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -16,6 +17,8 @@ from .models import FreeAgent, Team, Match, League, Player, Substitution, Season
     Postponement
 from core.forms import NewCommentForm
 from core.models import NewComment, Profile
+
+from .templatetags.tournament_extras import get_user_teams
 
 
 class DisqualificationFilter(FilterSet):
@@ -317,7 +320,7 @@ class PostponementsList(ListView):
     template_name = 'tournament/postponements/postponements.html'
 
     def get_context_data(self, **kwargs):
-        context = super(PostponementsList, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         filter = LeagueByTitleFilter(self.request.GET, queryset=League.objects.filter(championship__is_active=True))
         teams = reduce(lambda acc, league: acc.union(league.teams.all()), filter.qs, set())
 
@@ -328,24 +331,37 @@ class PostponementsList(ListView):
     def post(self, request):
         data = request.POST
 
-        match = int(data['match'])
-        raw_teams = data['teams']
-        if raw_teams == 'Обоюдный':
+        match_id = int(data['match_id'])
+        match = Match.objects.get(pk=match_id)
+        team = data['team']
+        type = data['type']
+
+        if team == 'mutual':
             teams = [match.team_home, match.team_guest]
         else:
-            team_id = raw_teams
-            team = Team.objects.first(pk=team_id)
-            teams = [team]
-        is_emergency = False
-        if data['emergency'] == 'Экстренный':
-            is_emergency = True
+            team_id = int(team)
+            teams = [Team.objects.get(pk=team_id)]
+        is_emergency = type == 'emergency'
         taken_by = request.user
-        postponement = Postponement.object.create(match=match, is_emergency=is_emergency, teams=teams,
-                                                  taken_by=taken_by)
-        if postponement:
-            return redirect('tournament:postponements')
-        else:
-            return render(request, self.get_context_data())
+        postponement = Postponement.objects.create(match=match, is_emergency=is_emergency, taken_by=taken_by)
+        postponement.teams.set(teams)
+
+        return redirect('tournament:postponements')
+
+
+@require_POST
+def cancel_postponement(request, pk):
+    postponement = get_object_or_404(Postponement, pk=pk)
+    user_teams = get_user_teams(request.user)
+
+    if (postponement.match.team_home in user_teams) or (postponement.match.team_guest in user_teams):
+        postponement.cancelled_at = timezone.now()
+        postponement.cancelled_by = request.user
+        postponement.save()
+
+        return redirect('tournament:postponements')
+    else:
+        return HttpResponse('Ошибка доступа')
 
 
 def halloffame(request):

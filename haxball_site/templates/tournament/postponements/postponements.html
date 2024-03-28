@@ -47,6 +47,37 @@
                                                 <img src="{{match.team_guest.logo.url}}" style="vertical-align: bottom;" alt="..." width="16" height="16">
                                             </a><br>
                                             {{postponement.starts_at|date:'d.m'}}-{{postponement.ends_at|date:'d.m'}}
+                                            {% if postponement|can_be_cancelled_by_user:user %}
+                                                <a class="text-danger" data-toggle="modal"
+                                                   data-target="#cancel_postponement{{ postponement.id }}">
+                                                    <i class="fa fa-times" aria-hidden="true"
+                                                       style="font-size: 14px; cursor: pointer"></i>
+                                                </a>
+                                                <div class="modal fade" id="cancel_postponement{{ postponement.id }}"
+                                                     tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                                     aria-hidden="true">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header justify-content-center">
+                                                                <h4 class="modal-title">Отменить перенос?</h4>
+                                                            </div>
+                                                            <div class="modal-footer justify-content-center">
+                                                                <button type="button" class="btn btn-danger"
+                                                                        data-dismiss="modal">Нет, подождите
+                                                                </button>
+                                                                <form method="POST"
+                                                                      action="{% url 'tournament:cancel_postponement' postponement.id %}">
+                                                                    {% csrf_token %}
+                                                                    <button type="submit"
+                                                                            class="btn btn-primary">
+                                                                        Да, я уверен
+                                                                    </button>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
                                         {% endwith %}
                                     {% endif %}
                                 </td>
@@ -57,9 +88,9 @@
             </table>
         </div>
     </div>
+
 </div>
 
-<!-- if юзер капитан/заместитель команды -->
 {% postponements_form user %}
 
 {% endblock %}

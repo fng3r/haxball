@@ -240,11 +240,17 @@ class Match(models.Model):
 
     @property
     def can_be_postponed(self):
-        return not self.is_played and timezone.now().date() >= self.numb_tour.date_from
+        if self.is_played:
+            return False
+        if not self.is_postponed:
+            return timezone.now().date() >= self.numb_tour.date_from
+        else:
+            last_postponement = self.postponements.filter(cancelled_at=None).order_by('match__numb_tour__date_from').last()
+            return last_postponement.starts_at <= timezone.now().date() <= last_postponement.ends_at
 
     @property
     def is_postponed(self):
-        return self.postponements.count() > 0
+        return self.postponements.filter(cancelled_at=None).count() > 0
 
     def get_absolute_url(self):
         return reverse('tournament:match_detail', args=[self.id])
@@ -450,6 +456,10 @@ class Postponement(models.Model):
     @property
     def is_mutual(self):
         return self.teams.count() > 1
+
+    @property
+    def can_be_cancelled(self):
+        return not self.is_cancelled and timezone.now().date() < self.starts_at
 
     @property
     def is_cancelled(self):
