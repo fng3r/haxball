@@ -334,7 +334,7 @@ class Disqualification(models.Model):
     reason = models.CharField('Причина дисквалификации', max_length=150, null=True)
     tours = models.ManyToManyField(TourNumber, verbose_name='Туры', related_name='disqualifications', null=False,
                                    help_text='Туры, на которые распостраняется дисквалификация')
-    lifted_tours = models.ManyToManyField(TourNumber, verbose_name='Отмененные туры',
+    lifted_tours = models.ManyToManyField(TourNumber, verbose_name='Отмененные туры', blank=True,
                                           help_text='Туры, на которые дисквалификация была снята. Должно являться '
                                                     'подмножеством списка туров, на которые дисквалификация была выдана')
     created = models.DateTimeField('Выдана', auto_now_add=True)
