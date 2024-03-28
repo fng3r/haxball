@@ -6,7 +6,7 @@ from django.db.models import Q, Count, QuerySet
 from django.utils import timezone
 
 from ..models import FreeAgent, OtherEvents, Goal, Match, League, Team, Player, Substitution, Season, PlayerTransfer, \
-    Postponement
+    Disqualification, Postponement
 
 register = template.Library()
 
@@ -758,7 +758,20 @@ def card_name(card: OtherEvents):
 
 
 @register.filter
-def postponements_in_leagues(team: Team, leagues: QuerySet) -> list[Postponement | None]:
+def get_lifted_string(disqualification: Disqualification):
+    tours = disqualification.tours.all()
+    lifted_tours = disqualification.lifted_tours.all()
+    if len(lifted_tours) == 0:
+        return 'Нет'
+
+    diff = set(tours).difference(set(lifted_tours))
+    if len(diff) == 0:
+        return 'Да'
+
+    return 'Частично\n' + '\n'.join(map(lambda t: str(t), diff))
+
+@register.filter
+def postponements_in_leagues(team: Team, leagues: QuerySet) -> list[Postponement]:
     postponements = team.postponements.filter(cancelled_at=None, match__league__in=leagues).order_by('taken_at')
     postponement_slots = [None for _ in range(1, 7)]
     common_slots_count = 3
